@@ -1,0 +1,157 @@
+kri8 - COMPLETE BUILD PROMPT
+Build a production-ready web app called kri8 - a complete idea management platform with video editing
+integration.
+1. AUTHENTICATION & BACKEND
+• Use Supabase (PostgreSQL database + Auth)
+• User signup/login with email verification
+• JWT authentication tokens
+• User profiles with theme preferences
+• Email recovery/password reset
+2. DATABASE SCHEMA
+users table: id, email, name, theme_preference, created_at
+ideas table: id, user_id, title, insight, origin, notes, video_editing_notes, created_date, used_date,
+custom_date, is_used, parent_idea_id, branch_count, created_at, updated_at
+Note: parent_idea_id enables UNLIMITED nested branches (recursive structure)
+Video editing notes: Separate field for documenting video editing ideas/plans
+3. CORE FEATURES - ALL MUST WORK
+A. DASHBOARD & IDEAS
+• Display ALL user ideas flat on dashboard by default
+• Each idea shows: Title, Insight snippet, created date, status
+• Click idea to expand → Full view with all details
+• Create new idea form (title, insight, origin, notes, video editing notes)
+B. NESTED BRANCHING SYSTEM (UNLIMITED LEVELS)
+• Click any idea → "Create Branch" button
+• Branch creation modal → Name branch → Creates sub-idea
+• Sub-idea appears under parent with count badge
+• Each branch can have its own branches (recursive, unlimited depth)
+• Visual hierarchy clearly shown (indentation or tree structure)
+• Can delete any branch (and all its sub-branches)
+C. DATE SYSTEM - ALL WORKING
+• created_date: Auto-fill when idea added (not editable, locked)
+• used_date: Auto-fill when marked "used" (user can override with calendar picker)
+• custom_date: User picks from calendar picker (any date)
+• Auto-mark as used: When custom_date is reached/passed, idea auto-marks as used
+• Show all dates on idea card: "Created: Jun 17 | Used: Jun 18 | Custom: Jun 20"
+D. VIDEO EDITING NOTES
+• Separate section in each idea for video editing documentation
+• Can add/edit/delete video editing notes
+• Shows in expanded idea view
+• Included in exports
+E. THEME SYSTEM (ALL 10 THEMES WORKING)
+• 1. Midnight Minimalist - Dark navy/charcoal, clean lines, subtle gold accents
+• 2. Sunrise Gradient - Orange→pink→yellow warm gradient background
+• 3. Ocean Deep - Deep blue (#001f3f) with subtle wave SVG patterns
+• 4. Forest Green - Dark forest green (#0B3D2C) with leaf silhouettes
+• 5. Purple Dream - Soft lavender (#E6D5F0) with floating abstract shapes
+• 6. Aurora - Dark blue-purple with aurora borealis animated effect
+• 7. Cyber - Dark charcoal with neon green (#39FF14) and neon pink accents
+• 8. Sepia Vintage - Warm brown tones (#8B6F47), aged paper aesthetic
+• 9. Monochrome - Pure black & white (#000000 & #FFFFFF), ultra minimal
+• 10. Sunset - Orange (#FF6B35) → Red → Purple gradient
+Requirements for all themes:
+• Content area in CENTER (white/light background for readability)
+• Background designs/patterns on SIDES (visible but not distracting)
+• Text 100% readable regardless of background
+• Smooth transitions when switching themes
+• One-click theme switcher (dropdown or buttons)
+F. EXPORT TO PPTX
+• Export all ideas or selected ideas
+• Beautiful PowerPoint format
+• Each idea on separate slide
+• Show: Title, Insight, Origin, Notes, Video Editing Notes, All Dates
+• Branch hierarchy preserved (sub-ideas shown with indentation/nesting)
+• Theme-aware (slides match selected theme)
+• Professional, clear, easy to read
+• Download as .pptx file
+G. SHARE PROFILE
+• Generate public profile link (https://kri8.app/user/[username])
+• Read-only view of user's ideas
+• Shows all ideas and branches
+• Visitors can export (optional) or just view
+• No login required to view
+H. DELETE FUNCTIONALITY
+• Delete any idea (removes idea + all child branches)
+• Confirmation modal before deletion
+• Smooth removal from UI
+4. UI/UX REQUIREMENTS
+• Loading screen: Dark background, center white circle, "kri8" in black text, subtle animation
+• App icon: White background, "kri8" in black text (32x32, 64x64, favicon)
+• Header: Logo, search bar, theme switcher, user profile menu, logout
+• Clean, minimal, modern design
+• Smooth animations/transitions
+• Mobile responsive (works on phone, tablet, desktop)
+• Dark mode friendly
+• Calendar picker for date selection (visual calendar interface)
+• Confirmation modals for destructive actions
+5. TECH STACK
+• Frontend: React 18, Vite, Tailwind CSS, shadcn/ui
+• Calendar: react-calendar or date-fns
+• Export: pptx library (pptxgenjs recommended)
+• Backend: Supabase (PostgreSQL + Auth + Real-time)
+• Deployment: Vercel (frontend) + Supabase (backend)
+• Icons: Lucide React or Heroicons
+6. FILE STRUCTURE
+kri8/
+■■■ src/
+■ ■■■ components/
+■ ■ ■■■ Auth/ (LoginPage.jsx, SignupPage.jsx, PasswordReset.jsx)
+■ ■ ■■■ Dashboard/ (Dashboard.jsx, IdeaCard.jsx, IdeaForm.jsx, SearchBar.jsx)
+■ ■ ■■■ IdeaDetail/ (IdeaDetailView.jsx, EditIdeaForm.jsx, VideoEditingNotes.jsx, BranchTree.jsx,
+CreateBranchModal.jsx)
+■ ■ ■■■ Themes/ (ThemeSwitcher.jsx, ThemeProvider.jsx, themes.js)
+■ ■ ■■■ Export/ (ExportToPPTX.jsx, exportPPTX.js)
+■ ■ ■■■ Profile/ (PublicProfile.jsx, Settings.jsx)
+■ ■ ■■■ Common/ (Header.jsx, LoadingScreen.jsx, ConfirmModal.jsx, DatePicker.jsx)
+■ ■■■ hooks/ (useAuth.js, useIdeas.js, useTheme.js, useBranches.js)
+■ ■■■ lib/ (supabase.js, exportPPTX.js, dateUtils.js)
+■ ■■■ styles/ (themes.css, global.css)
+■ ■■■ pages/ (Home.jsx, Dashboard.jsx, IdeaDetail.jsx, PublicProfile.jsx, Settings.jsx)
+■ ■■■ App.jsx
+■ ■■■ main.jsx
+■■■ package.json
+■■■ vite.config.js
+■■■ tailwind.config.js
+■■■ .env.local
+■■■ README.md
+7. KEY FEATURES DETAILED
+A. BRANCH SYSTEM (Recursive/Unlimited)
+• Each idea has parent_idea_id field
+• Create branch → New idea with parent_idea_id set
+• Fetch branches recursively from database
+• Display in tree/indented structure
+• Unlimited nesting levels
+B. VIDEO EDITING NOTES
+• Text field in idea detail view
+• Store in video_editing_notes column
+• Show in expanded view
+• Include in PPTX export
+• Editable inline or modal
+C. DATE LOGIC
+• created_date: Set automatically, never change
+• used_date: Set when marked used, changeable via date picker
+• custom_date: User sets via calendar picker
+• Check daily (or on page load): If custom_date <= today AND is_used = false → set is_used = true
+D. EXPORT FLOW
+• User clicks Export
+• Select which ideas to export (all or filtered)
+• Generate PPTX with professional formatting
+• Include branch hierarchy
+• Apply theme colors to slides
+• Download as .pptx file
+8. DELIVERABLES - ALL MUST WORK
+• ■ Complete authentication system
+• ■ Full CRUD for ideas
+• ■ Unlimited recursive branching
+• ■ All 10 themes fully functional
+• ■ Date system working (auto-fill, custom picker, auto-mark used)
+• ■ Video editing notes working
+• ■ Export to PPTX working
+• ■ Share public profile working
+• ■ Delete functionality working
+• ■ Mobile responsive
+• ■ Loading screen implemented
+• ■ Deployed and live
+• ■ Database optimized
+• ■ No bugs on core features
+BUILD THIS AS A COMPLETE, PRODUCTION-READY, FULLY
+FUNCTIONAL PRODUCT.
