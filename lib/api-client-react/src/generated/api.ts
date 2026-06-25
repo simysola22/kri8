@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * kri8 API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import {
   useMutation,
@@ -21,17 +21,32 @@ import type {
 
 import type {
   BranchInput,
+  Conversation,
+  FriendRequest,
+  FriendRequestResponse,
+  FriendsList,
+  GetCalendarIdeasParams,
+  GetMessagesParams,
   GetRecentIdeasParams,
   HealthStatus,
   Idea,
+  IdeaAnalysisRequest,
+  IdeaAnalysisResult,
   IdeaDetail,
   IdeaInput,
   IdeaStats,
   IdeaUpdate,
+  InspirationRequest,
+  InspirationResult,
   ListIdeasParams,
   MarkUsedInput,
+  Message,
+  MessageInput,
   PublicProfile,
+  SearchUsersParams,
+  TrendDashboard,
   User,
+  UserPublic,
   UserUpdate
 } from './api.schemas';
 
@@ -271,6 +286,90 @@ export const useUpdateMe = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getUpdateMeMutationOptions(options));
     }
+
+export const getSearchUsersUrl = (params: SearchUsersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/users/search?${stringifiedParams}` : `/api/users/search`
+}
+
+/**
+ * @summary Search users by name or username
+ */
+export const searchUsers = async (params: SearchUsersParams, options?: RequestInit): Promise<UserPublic[]> => {
+
+  return customFetch<UserPublic[]>(getSearchUsersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchUsersQueryKey = (params?: SearchUsersParams,) => {
+    return [
+    `/api/users/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchUsersQueryOptions = <TData = Awaited<ReturnType<typeof searchUsers>>, TError = ErrorType<unknown>>(params: SearchUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchUsersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchUsers>>> = ({ signal }) => searchUsers(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchUsersQueryResult = NonNullable<Awaited<ReturnType<typeof searchUsers>>>
+export type SearchUsersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Search users by name or username
+ */
+
+export function useSearchUsers<TData = Awaited<ReturnType<typeof searchUsers>>, TError = ErrorType<unknown>>(
+ params: SearchUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchUsersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListIdeasUrl = (params?: ListIdeasParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -588,6 +687,90 @@ export function useGetRecentIdeas<TData = Awaited<ReturnType<typeof getRecentIde
 
 
 
+export const getGetCalendarIdeasUrl = (params: GetCalendarIdeasParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/ideas/calendar?${stringifiedParams}` : `/api/ideas/calendar`
+}
+
+/**
+ * @summary Get ideas for a specific month (calendar view)
+ */
+export const getCalendarIdeas = async (params: GetCalendarIdeasParams, options?: RequestInit): Promise<Idea[]> => {
+
+  return customFetch<Idea[]>(getGetCalendarIdeasUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCalendarIdeasQueryKey = (params?: GetCalendarIdeasParams,) => {
+    return [
+    `/api/ideas/calendar`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetCalendarIdeasQueryOptions = <TData = Awaited<ReturnType<typeof getCalendarIdeas>>, TError = ErrorType<unknown>>(params: GetCalendarIdeasParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCalendarIdeas>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCalendarIdeasQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCalendarIdeas>>> = ({ signal }) => getCalendarIdeas(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCalendarIdeas>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCalendarIdeasQueryResult = NonNullable<Awaited<ReturnType<typeof getCalendarIdeas>>>
+export type GetCalendarIdeasQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get ideas for a specific month (calendar view)
+ */
+
+export function useGetCalendarIdeas<TData = Awaited<ReturnType<typeof getCalendarIdeas>>, TError = ErrorType<unknown>>(
+ params: GetCalendarIdeasParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCalendarIdeas>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCalendarIdeasQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getGetIdeaUrl = (id: number,) => {
 
 
@@ -888,7 +1071,7 @@ export const getListBranchesUrl = (id: number,) => {
 }
 
 /**
- * @summary List all branches of an idea (recursive)
+ * @summary List all branches of an idea
  */
 export const listBranches = async (id: number, options?: RequestInit): Promise<Idea[]> => {
 
@@ -935,7 +1118,7 @@ export type ListBranchesQueryError = ErrorType<unknown>
 
 
 /**
- * @summary List all branches of an idea (recursive)
+ * @summary List all branches of an idea
  */
 
 export function useListBranches<TData = Awaited<ReturnType<typeof listBranches>>, TError = ErrorType<unknown>>(
@@ -1104,4 +1287,680 @@ export function useGetPublicProfile<TData = Awaited<ReturnType<typeof getPublicP
 
 
 
+
+export const getListFriendsUrl = () => {
+
+
+
+
+  return `/api/social/friends`
+}
+
+/**
+ * @summary List accepted friends and pending requests
+ */
+export const listFriends = async ( options?: RequestInit): Promise<FriendsList> => {
+
+  return customFetch<FriendsList>(getListFriendsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListFriendsQueryKey = () => {
+    return [
+    `/api/social/friends`
+    ] as const;
+    }
+
+
+export const getListFriendsQueryOptions = <TData = Awaited<ReturnType<typeof listFriends>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFriends>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListFriendsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listFriends>>> = ({ signal }) => listFriends({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listFriends>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListFriendsQueryResult = NonNullable<Awaited<ReturnType<typeof listFriends>>>
+export type ListFriendsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List accepted friends and pending requests
+ */
+
+export function useListFriends<TData = Awaited<ReturnType<typeof listFriends>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFriends>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListFriendsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSendFriendRequestUrl = (userId: number,) => {
+
+
+
+
+  return `/api/social/friends/${userId}`
+}
+
+/**
+ * @summary Send a friend request to a user
+ */
+export const sendFriendRequest = async (userId: number, options?: RequestInit): Promise<FriendRequest> => {
+
+  return customFetch<FriendRequest>(getSendFriendRequestUrl(userId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getSendFriendRequestMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendFriendRequest>>, TError,{userId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendFriendRequest>>, TError,{userId: number}, TContext> => {
+
+const mutationKey = ['sendFriendRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendFriendRequest>>, {userId: number}> = (props) => {
+          const {userId} = props ?? {};
+
+          return  sendFriendRequest(userId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendFriendRequestMutationResult = NonNullable<Awaited<ReturnType<typeof sendFriendRequest>>>
+
+    export type SendFriendRequestMutationError = ErrorType<void>
+
+    /**
+ * @summary Send a friend request to a user
+ */
+export const useSendFriendRequest = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendFriendRequest>>, TError,{userId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof sendFriendRequest>>,
+        TError,
+        {userId: number},
+        TContext
+      > => {
+      return useMutation(getSendFriendRequestMutationOptions(options));
+    }
+
+export const getRespondFriendRequestUrl = (requestId: number,) => {
+
+
+
+
+  return `/api/social/friends/${requestId}/respond`
+}
+
+/**
+ * @summary Accept or reject a friend request
+ */
+export const respondFriendRequest = async (requestId: number,
+    friendRequestResponse: FriendRequestResponse, options?: RequestInit): Promise<FriendRequest> => {
+
+  return customFetch<FriendRequest>(getRespondFriendRequestUrl(requestId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      friendRequestResponse,)
+  }
+);}
+
+
+
+
+export const getRespondFriendRequestMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof respondFriendRequest>>, TError,{requestId: number;data: BodyType<FriendRequestResponse>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof respondFriendRequest>>, TError,{requestId: number;data: BodyType<FriendRequestResponse>}, TContext> => {
+
+const mutationKey = ['respondFriendRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof respondFriendRequest>>, {requestId: number;data: BodyType<FriendRequestResponse>}> = (props) => {
+          const {requestId,data} = props ?? {};
+
+          return  respondFriendRequest(requestId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RespondFriendRequestMutationResult = NonNullable<Awaited<ReturnType<typeof respondFriendRequest>>>
+    export type RespondFriendRequestMutationBody = BodyType<FriendRequestResponse>
+    export type RespondFriendRequestMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Accept or reject a friend request
+ */
+export const useRespondFriendRequest = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof respondFriendRequest>>, TError,{requestId: number;data: BodyType<FriendRequestResponse>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof respondFriendRequest>>,
+        TError,
+        {requestId: number;data: BodyType<FriendRequestResponse>},
+        TContext
+      > => {
+      return useMutation(getRespondFriendRequestMutationOptions(options));
+    }
+
+export const getGetMessagesUrl = (userId: number,
+    params?: GetMessagesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/social/messages/${userId}?${stringifiedParams}` : `/api/social/messages/${userId}`
+}
+
+/**
+ * @summary Get conversation with a user
+ */
+export const getMessages = async (userId: number,
+    params?: GetMessagesParams, options?: RequestInit): Promise<Message[]> => {
+
+  return customFetch<Message[]>(getGetMessagesUrl(userId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMessagesQueryKey = (userId: number,
+    params?: GetMessagesParams,) => {
+    return [
+    `/api/social/messages/${userId}`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMessagesQueryOptions = <TData = Awaited<ReturnType<typeof getMessages>>, TError = ErrorType<unknown>>(userId: number,
+    params?: GetMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMessagesQueryKey(userId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMessages>>> = ({ signal }) => getMessages(userId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMessagesQueryResult = NonNullable<Awaited<ReturnType<typeof getMessages>>>
+export type GetMessagesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get conversation with a user
+ */
+
+export function useGetMessages<TData = Awaited<ReturnType<typeof getMessages>>, TError = ErrorType<unknown>>(
+ userId: number,
+    params?: GetMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMessagesQueryOptions(userId,params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSendMessageUrl = (userId: number,) => {
+
+
+
+
+  return `/api/social/messages/${userId}`
+}
+
+/**
+ * @summary Send a message to a user
+ */
+export const sendMessage = async (userId: number,
+    messageInput: MessageInput, options?: RequestInit): Promise<Message> => {
+
+  return customFetch<Message>(getSendMessageUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      messageInput,)
+  }
+);}
+
+
+
+
+export const getSendMessageMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{userId: number;data: BodyType<MessageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{userId: number;data: BodyType<MessageInput>}, TContext> => {
+
+const mutationKey = ['sendMessage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendMessage>>, {userId: number;data: BodyType<MessageInput>}> = (props) => {
+          const {userId,data} = props ?? {};
+
+          return  sendMessage(userId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendMessage>>>
+    export type SendMessageMutationBody = BodyType<MessageInput>
+    export type SendMessageMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Send a message to a user
+ */
+export const useSendMessage = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMessage>>, TError,{userId: number;data: BodyType<MessageInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof sendMessage>>,
+        TError,
+        {userId: number;data: BodyType<MessageInput>},
+        TContext
+      > => {
+      return useMutation(getSendMessageMutationOptions(options));
+    }
+
+export const getListConversationsUrl = () => {
+
+
+
+
+  return `/api/social/conversations`
+}
+
+/**
+ * @summary List recent conversations
+ */
+export const listConversations = async ( options?: RequestInit): Promise<Conversation[]> => {
+
+  return customFetch<Conversation[]>(getListConversationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListConversationsQueryKey = () => {
+    return [
+    `/api/social/conversations`
+    ] as const;
+    }
+
+
+export const getListConversationsQueryOptions = <TData = Awaited<ReturnType<typeof listConversations>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listConversations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListConversationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listConversations>>> = ({ signal }) => listConversations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listConversations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListConversationsQueryResult = NonNullable<Awaited<ReturnType<typeof listConversations>>>
+export type ListConversationsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List recent conversations
+ */
+
+export function useListConversations<TData = Awaited<ReturnType<typeof listConversations>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listConversations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListConversationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetTrendDashboardUrl = () => {
+
+
+
+
+  return `/api/trends/dashboard`
+}
+
+/**
+ * @summary Get trending topics, hashtags, and categories
+ */
+export const getTrendDashboard = async ( options?: RequestInit): Promise<TrendDashboard> => {
+
+  return customFetch<TrendDashboard>(getGetTrendDashboardUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTrendDashboardQueryKey = () => {
+    return [
+    `/api/trends/dashboard`
+    ] as const;
+    }
+
+
+export const getGetTrendDashboardQueryOptions = <TData = Awaited<ReturnType<typeof getTrendDashboard>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTrendDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTrendDashboardQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTrendDashboard>>> = ({ signal }) => getTrendDashboard({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTrendDashboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTrendDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof getTrendDashboard>>>
+export type GetTrendDashboardQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get trending topics, hashtags, and categories
+ */
+
+export function useGetTrendDashboard<TData = Awaited<ReturnType<typeof getTrendDashboard>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTrendDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTrendDashboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAnalyzeIdeaUrl = () => {
+
+
+
+
+  return `/api/trends/analyze`
+}
+
+/**
+ * @summary Analyze an idea against current trends
+ */
+export const analyzeIdea = async (ideaAnalysisRequest: IdeaAnalysisRequest, options?: RequestInit): Promise<IdeaAnalysisResult> => {
+
+  return customFetch<IdeaAnalysisResult>(getAnalyzeIdeaUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      ideaAnalysisRequest,)
+  }
+);}
+
+
+
+
+export const getAnalyzeIdeaMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeIdea>>, TError,{data: BodyType<IdeaAnalysisRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeIdea>>, TError,{data: BodyType<IdeaAnalysisRequest>}, TContext> => {
+
+const mutationKey = ['analyzeIdea'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeIdea>>, {data: BodyType<IdeaAnalysisRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeIdea(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeIdeaMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeIdea>>>
+    export type AnalyzeIdeaMutationBody = BodyType<IdeaAnalysisRequest>
+    export type AnalyzeIdeaMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Analyze an idea against current trends
+ */
+export const useAnalyzeIdea = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeIdea>>, TError,{data: BodyType<IdeaAnalysisRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeIdea>>,
+        TError,
+        {data: BodyType<IdeaAnalysisRequest>},
+        TContext
+      > => {
+      return useMutation(getAnalyzeIdeaMutationOptions(options));
+    }
+
+export const getInspireIdeaUrl = () => {
+
+
+
+
+  return `/api/trends/inspire`
+}
+
+/**
+ * @summary Generate content inspiration for an idea
+ */
+export const inspireIdea = async (inspirationRequest: InspirationRequest, options?: RequestInit): Promise<InspirationResult> => {
+
+  return customFetch<InspirationResult>(getInspireIdeaUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      inspirationRequest,)
+  }
+);}
+
+
+
+
+export const getInspireIdeaMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof inspireIdea>>, TError,{data: BodyType<InspirationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof inspireIdea>>, TError,{data: BodyType<InspirationRequest>}, TContext> => {
+
+const mutationKey = ['inspireIdea'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof inspireIdea>>, {data: BodyType<InspirationRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  inspireIdea(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type InspireIdeaMutationResult = NonNullable<Awaited<ReturnType<typeof inspireIdea>>>
+    export type InspireIdeaMutationBody = BodyType<InspirationRequest>
+    export type InspireIdeaMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Generate content inspiration for an idea
+ */
+export const useInspireIdea = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof inspireIdea>>, TError,{data: BodyType<InspirationRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof inspireIdea>>,
+        TError,
+        {data: BodyType<InspirationRequest>},
+        TContext
+      > => {
+      return useMutation(getInspireIdeaMutationOptions(options));
+    }
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db, usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, or, ilike, sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -53,6 +53,9 @@ router.get("/me", requireAuth, async (req: any, res): Promise<void> => {
       email: user.email,
       name: user.name,
       username: user.username,
+      bio: user.bio,
+      avatarUrl: user.avatarUrl,
+      isPublic: user.isPublic,
       themePreference: user.themePreference,
       createdAt: user.createdAt.toISOString(),
     });
@@ -66,8 +69,6 @@ router.get("/me", requireAuth, async (req: any, res): Promise<void> => {
 router.patch("/me", requireAuth, async (req: any, res): Promise<void> => {
   try {
     const clerkUserId = req.clerkUserId;
-    const { name, username, themePreference } = req.body;
-
     // Find user first
     const existing = await db
       .select()
@@ -79,9 +80,13 @@ router.patch("/me", requireAuth, async (req: any, res): Promise<void> => {
       res.status(404).json({ error: "User not found" }); return;
     }
 
+    const { name, username, themePreference, bio, avatarUrl, isPublic } = req.body;
     const updates: Partial<typeof usersTable.$inferInsert> = {};
     if (name !== undefined) updates.name = name;
     if (username !== undefined) updates.username = username;
+    if (bio !== undefined) updates.bio = bio;
+    if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl;
+    if (isPublic !== undefined) updates.isPublic = isPublic;
     if (themePreference !== undefined) updates.themePreference = themePreference;
 
     const [updated] = await db
@@ -96,12 +101,40 @@ router.patch("/me", requireAuth, async (req: any, res): Promise<void> => {
       email: updated.email,
       name: updated.name,
       username: updated.username,
+      bio: updated.bio,
+      avatarUrl: updated.avatarUrl,
+      isPublic: updated.isPublic,
       themePreference: updated.themePreference,
       createdAt: updated.createdAt.toISOString(),
     });
   } catch (err) {
     req.log.error({ err }, "Failed to update user");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET /api/users/search?q=
+router.get("/search", requireAuth, async (req: any, res): Promise<void> => {
+  try {
+    const q = String(req.query.q ?? "").trim();
+    if (!q || q.length < 2) { res.json([]); return; }
+
+    const users = await db
+      .select()
+      .from(usersTable)
+      .where(or(ilike(usersTable.name, `%${q}%`), ilike(usersTable.username, `%${q}%`)))
+      .limit(20);
+
+    res.json(users.map(u => ({
+      id: u.id,
+      name: u.name,
+      username: u.username,
+      bio: u.bio,
+      avatarUrl: u.avatarUrl,
+    })));
+  } catch (err) {
+    req.log.error({ err }, "Failed to search users");
+    res.status(500).json({ error: "Internal error" });
   }
 });
 

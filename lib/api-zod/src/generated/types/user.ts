@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * kri8 API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
 export interface User {
@@ -14,6 +14,11 @@ export interface User {
   name?: string | null;
   /** @nullable */
   username?: string | null;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  isPublic: boolean;
   themePreference: string;
   createdAt: string;
 }

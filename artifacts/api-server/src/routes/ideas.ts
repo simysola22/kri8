@@ -208,6 +208,46 @@ router.get("/recent", requireAuth, async (req: any, res): Promise<void> => {
   }
 });
 
+// GET /api/ideas/calendar?month=YYYY-MM
+router.get("/calendar", requireAuth, async (req: any, res): Promise<void> => {
+  try {
+    const auth = getAuth(req);
+    const clerkUserId = auth?.userId!;
+    const email = (auth?.sessionClaims?.email as string) || "";
+    const user = await getOrCreateUser(clerkUserId, email);
+
+    const month = String(req.query.month ?? "");
+    if (!/^\d{4}-\d{2}$/.test(month)) {
+      res.status(400).json({ error: "month must be YYYY-MM" }); return;
+    }
+
+    const [year, mo] = month.split("-").map(Number);
+    const start = `${year}-${String(mo).padStart(2, "0")}-01`;
+    const endDate = new Date(year, mo, 0); // last day of month
+    const end = endDate.toISOString().split("T")[0];
+
+    const ideas = await db
+      .select()
+      .from(ideasTable)
+      .where(
+        and(
+          eq(ideasTable.userId, user.id),
+          sql`(
+            (${ideasTable.createdDate} >= ${start} AND ${ideasTable.createdDate} <= ${end})
+            OR (${ideasTable.usedDate} >= ${start} AND ${ideasTable.usedDate} <= ${end})
+            OR (${ideasTable.customDate} >= ${start} AND ${ideasTable.customDate} <= ${end})
+          )`,
+        ),
+      )
+      .orderBy(desc(ideasTable.createdAt));
+
+    res.json(ideas.map(serializeIdea));
+  } catch (err) {
+    req.log.error({ err }, "Failed to get calendar ideas");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // GET /api/ideas/:id
 router.get("/:id", requireAuth, async (req: any, res): Promise<void> => {
   try {

@@ -3,12 +3,12 @@
  * Do not edit manually.
  * Api
  * kri8 API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import type { IdeaDetail } from './ideaDetail';
-import type { User } from './user';
+import type { UserPublic } from './userPublic';
 
 export interface PublicProfile {
-  user: User;
+  user: UserPublic;
   ideas: IdeaDetail[];
 }

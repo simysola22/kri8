@@ -1,6 +1,5 @@
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
 import { ClerkProvider, SignIn, SignUp, Show, useClerk } from '@clerk/react';
-import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -13,11 +12,12 @@ import Dashboard from './pages/dashboard';
 import IdeaDetail from './pages/idea-detail';
 import Settings from './pages/settings';
 import PublicProfile from './pages/public-profile';
+import CalendarPage from './pages/calendar';
+import SocialPage from './pages/social';
+import MessagesPage from './pages/messages';
+import TrendsPage from './pages/trends';
 
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -31,6 +31,8 @@ function stripBase(path: string): string {
 if (!clerkPubKey) {
   throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY');
 }
+
+const resolvedClerkPubKey: string = clerkPubKey;
 
 const clerkAppearance = {
   theme: shadcn,
@@ -181,6 +183,26 @@ function AppRoutes() {
            <Settings />
         </DashboardProtect>
       </Route>
+      <Route path="/calendar">
+        <DashboardProtect>
+          <CalendarPage />
+        </DashboardProtect>
+      </Route>
+      <Route path="/social">
+        <DashboardProtect>
+          <SocialPage />
+        </DashboardProtect>
+      </Route>
+      <Route path="/messages">
+        <DashboardProtect>
+          <MessagesPage />
+        </DashboardProtect>
+      </Route>
+      <Route path="/trends">
+        <DashboardProtect>
+          <TrendsPage />
+        </DashboardProtect>
+      </Route>
 
       {/* Public Routes */}
       <Route path="/profile/:username">
@@ -221,7 +243,7 @@ function ClerkProviderWithRoutes() {
 
   return (
     <ClerkProvider
-      publishableKey={clerkPubKey}
+      publishableKey={resolvedClerkPubKey}
       proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}

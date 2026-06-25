@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * kri8 API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 export interface HealthStatus {
   status: string;
@@ -17,13 +17,33 @@ export interface User {
   name?: string | null;
   /** @nullable */
   username?: string | null;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  isPublic: boolean;
   themePreference: string;
   createdAt: string;
+}
+
+export interface UserPublic {
+  id: number;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
 }
 
 export interface UserUpdate {
   name?: string;
   username?: string;
+  bio?: string;
+  avatarUrl?: string;
+  isPublic?: boolean;
   themePreference?: string;
 }
 
@@ -124,30 +144,146 @@ export interface IdeaStats {
 }
 
 export interface PublicProfile {
-  user: User;
+  user: UserPublic;
   ideas: IdeaDetail[];
 }
 
+export type FriendRequestStatus = typeof FriendRequestStatus[keyof typeof FriendRequestStatus];
+
+
+export const FriendRequestStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface FriendRequest {
+  id: number;
+  requester: UserPublic;
+  addressee: UserPublic;
+  status: FriendRequestStatus;
+  createdAt: string;
+}
+
+export interface FriendsList {
+  friends: UserPublic[];
+  pendingReceived: FriendRequest[];
+  pendingSent: FriendRequest[];
+}
+
+export type FriendRequestResponseStatus = typeof FriendRequestResponseStatus[keyof typeof FriendRequestResponseStatus];
+
+
+export const FriendRequestResponseStatus = {
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface FriendRequestResponse {
+  status: FriendRequestResponseStatus;
+}
+
+export interface Message {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface MessageInput {
+  /** @minLength 1 */
+  content: string;
+}
+
+export interface Conversation {
+  partner: UserPublic;
+  lastMessage?: Message;
+  unreadCount: number;
+}
+
+export interface TrendingTopic {
+  id: string;
+  name: string;
+  category: string;
+  growthPercent: number;
+  volume: number;
+  platform: string;
+}
+
+export interface TrendingHashtag {
+  tag: string;
+  platform: string;
+  volume: number;
+  growthPercent: number;
+}
+
+export interface ContentCategory {
+  name: string;
+  growthPercent: number;
+  topContent: string[];
+}
+
+export interface TrendDashboard {
+  topics: TrendingTopic[];
+  hashtags: TrendingHashtag[];
+  categories: ContentCategory[];
+  lastUpdated: string;
+  provider: string;
+}
+
+export interface IdeaAnalysisRequest {
+  title: string;
+  notes?: string;
+}
+
+export interface IdeaAnalysisResult {
+  relevanceScore: number;
+  relatedTopics: TrendingTopic[];
+  relatedHashtags: TrendingHashtag[];
+  contentOpportunities: string[];
+  suggestedAngles: string[];
+}
+
+export interface InspirationRequest {
+  title: string;
+  notes?: string;
+}
+
+export interface InspirationResult {
+  relatedIdeas: string[];
+  alternativeHooks: string[];
+  titleSuggestions: string[];
+  audienceQuestions: string[];
+}
+
+export type SearchUsersParams = {
+q: string;
+};
+
 export type ListIdeasParams = {
-/**
- * Search query for title or insight
- */
 search?: string;
-/**
- * Filter by used status
- */
 is_used?: boolean;
 /**
- * Filter by parent idea id (null for root ideas)
  * @nullable
  */
 parent_id?: number | null;
 };
 
 export type GetRecentIdeasParams = {
+limit?: number;
+};
+
+export type GetCalendarIdeasParams = {
 /**
- * Number of recent ideas to return
+ * Month in YYYY-MM format
  */
+month: string;
+};
+
+export type GetMessagesParams = {
+before?: number;
 limit?: number;
 };
 

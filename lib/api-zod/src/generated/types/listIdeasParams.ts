@@ -3,20 +3,13 @@
  * Do not edit manually.
  * Api
  * kri8 API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
 export type ListIdeasParams = {
-/**
- * Search query for title or insight
- */
 search?: string;
-/**
- * Filter by used status
- */
 is_used?: boolean;
 /**
- * Filter by parent idea id (null for root ideas)
  * @nullable
  */
 parent_id?: number | null;

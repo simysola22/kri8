@@ -1,0 +1,3 @@
+- [Orval Zod duplicate export fix](orval-zod-duplicate.md) — never re-export `./generated/types` from api-zod index; causes TS2308 conflicts with auto-generated param names.
+- [Trend engine provider pattern](trend-engine-provider.md) — TREND_PROVIDER env var selects mock/youtube; OpenAI key gates inspiration quality; always falls back gracefully.
+- [Calendar route ordering](calendar-route-order.md) — `/calendar` must come before `/:id` in Express router or "calendar" is parsed as an id param.

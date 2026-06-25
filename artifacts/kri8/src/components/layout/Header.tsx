@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useClerk, useUser } from "@clerk/react";
-import { Search, Monitor, Moon, Sun, Settings, LogOut, FileText, UserCircle } from "lucide-react";
+import { Search, Moon, Settings, LogOut, FileText, UserCircle, Calendar, Users, MessageSquare, TrendingUp } from "lucide-react";
 import { THEMES, applyTheme } from "@/lib/themes";
 import { useUpdateMe } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -110,6 +110,30 @@ export function Header() {
                 <Link href="/dashboard" className="cursor-pointer flex w-full items-center">
                   <FileText className="mr-2 h-4 w-4" />
                   <span>My Ideas</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/calendar" className="cursor-pointer flex w-full items-center">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  <span>Calendar</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/trends" className="cursor-pointer flex w-full items-center">
+                  <TrendingUp className="mr-2 h-4 w-4" />
+                  <span>Trends</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/social" className="cursor-pointer flex w-full items-center">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>Community</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/messages" className="cursor-pointer flex w-full items-center">
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>Messages</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

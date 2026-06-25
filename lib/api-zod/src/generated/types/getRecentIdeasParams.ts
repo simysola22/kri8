@@ -3,12 +3,9 @@
  * Do not edit manually.
  * Api
  * kri8 API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 
 export type GetRecentIdeasParams = {
-/**
- * Number of recent ideas to return
- */
 limit?: number;
 };

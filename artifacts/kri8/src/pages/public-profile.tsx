@@ -14,10 +14,8 @@ export default function PublicProfile() {
   });
 
   useEffect(() => {
-    if (profile?.user?.themePreference) {
-      applyTheme(profile.user.themePreference);
-    }
-  }, [profile?.user?.themePreference]);
+    // Theme application removed: themePreference is not exposed on public profiles
+  }, []);
 
   if (isLoading) {
     return (
