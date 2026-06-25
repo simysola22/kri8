@@ -10,7 +10,18 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 20,                    // max simultaneous connections
+  idleTimeoutMillis: 30_000,  // release idle connections after 30s
+  connectionTimeoutMillis: 5_000, // fail fast if no connection available
+  allowExitOnIdle: false,
+});
+
+pool.on("error", (err) => {
+  console.error("Unexpected pg pool error", err);
+});
+
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";

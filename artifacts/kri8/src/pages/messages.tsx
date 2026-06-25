@@ -23,6 +23,39 @@ function formatTime(iso: string) {
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+/** Open one persistent SSE connection per selected conversation. Appends new
+ *  messages to React Query cache instead of re-fetching the whole thread. */
+function useMessageSSE(myId: number | undefined, partnerId: number | undefined) {
+  useEffect(() => {
+    if (!myId || !partnerId) return;
+
+    const url = `${BASE_URL}/api/social/messages/${partnerId}/stream`;
+    const es = new EventSource(url, { withCredentials: true });
+
+    es.onmessage = (e) => {
+      try {
+        const msg: Message = JSON.parse(e.data);
+        // Append the new message to the thread cache
+        const key = getGetMessagesQueryKey(partnerId, {});
+        queryClient.setQueryData(key, (old: Message[] = []) => {
+          if (old.some((m) => m.id === msg.id)) return old; // deduplicate
+          return [...old, msg];
+        });
+        // Refresh conversations list so unread count stays current
+        queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey() });
+      } catch {}
+    };
+
+    es.onerror = () => {
+      // Browser will auto-reconnect on transient errors; we don't need to do anything
+    };
+
+    return () => es.close();
+  }, [myId, partnerId]);
+}
+
 export default function MessagesPage() {
   const [selectedPartner, setSelectedPartner] = useState<UserPublic | null>(null);
   const [messageText, setMessageText] = useState("");
@@ -35,7 +68,8 @@ export default function MessagesPage() {
   const { data: conversations = [], isLoading: convsLoading } = useListConversations({
     query: {
       queryKey: getListConversationsQueryKey(),
-      refetchInterval: 15000,
+      // Keep a slow background refetch for conversations list only (not messages)
+      refetchInterval: 30_000,
     },
   });
 
@@ -46,10 +80,15 @@ export default function MessagesPage() {
       query: {
         enabled: !!selectedPartner,
         queryKey: selectedPartner ? getGetMessagesQueryKey(selectedPartner.id, {}) : [],
-        refetchInterval: 5000,
+        // SSE handles live updates; only refetch on window focus as a fallback
+        refetchOnWindowFocus: true,
+        staleTime: 60_000,
       },
     }
   );
+
+  // SSE: push new messages into cache in real-time, no polling needed
+  useMessageSSE(myId, selectedPartner?.id);
 
   const sendMessage = useSendMessage();
 
@@ -66,8 +105,13 @@ export default function MessagesPage() {
     sendMessage.mutate(
       { userId: selectedPartner.id, data: { content } },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetMessagesQueryKey(selectedPartner.id, {}) });
+        onSuccess: (newMsg) => {
+          // Optimistically update local cache (SSE will also notify the receiver)
+          const key = getGetMessagesQueryKey(selectedPartner.id, {});
+          queryClient.setQueryData(key, (old: Message[] = []) => {
+            if (old.some((m) => m.id === (newMsg as any).id)) return old;
+            return [...old, newMsg as unknown as Message];
+          });
           queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey() });
         },
         onError: () => {

@@ -6,6 +6,7 @@ import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
 } from "./middlewares/clerkProxyMiddleware";
+import { globalLimiter, writeLimiter } from "./middlewares/rateLimit";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -45,6 +46,8 @@ app.use(
   }),
 );
 
+app.use("/api", globalLimiter);
+app.use("/api", writeLimiter);
 app.use("/api", router);
 
 export default app;

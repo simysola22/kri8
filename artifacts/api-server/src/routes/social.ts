@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db, usersTable, friendshipsTable, messagesTable } from "@workspace/db";
-import { eq, or, and, lt, desc, sql } from "drizzle-orm";
+import { eq, or, and, lt, gt, desc, sql } from "drizzle-orm";
+import { z } from "zod";
+import { validateBody } from "../middlewares/validate";
+import { sseLimiter } from "../middlewares/rateLimit";
 
 const router = Router();
 
@@ -30,6 +33,14 @@ function toFriendRequest(row: typeof friendshipsTable.$inferSelect, requester: a
     createdAt: row.createdAt.toISOString(),
   };
 }
+
+const sendMessageSchema = z.object({
+  content: z.string().min(1).max(2000),
+});
+
+const respondSchema = z.object({
+  status: z.enum(["accepted", "rejected"]),
+});
 
 // GET /api/social/friends
 router.get("/friends", requireAuth, async (req: any, res): Promise<void> => {
@@ -117,14 +128,13 @@ router.post("/friends/:userId", requireAuth, async (req: any, res): Promise<void
 });
 
 // PATCH /api/social/friends/:requestId/respond
-router.patch("/friends/:requestId/respond", requireAuth, async (req: any, res): Promise<void> => {
+router.patch("/friends/:requestId/respond", requireAuth, validateBody(respondSchema), async (req: any, res): Promise<void> => {
   try {
     const me = await getDbUser(req.clerkUserId);
     if (!me) { res.status(401).json({ error: "User not found" }); return; }
 
     const requestId = Number(req.params.requestId);
     const { status } = req.body as { status: "accepted" | "rejected" };
-    if (!["accepted", "rejected"].includes(status)) { res.status(400).json({ error: "Invalid status" }); return; }
 
     const rows = await db.select().from(friendshipsTable).where(
       and(eq(friendshipsTable.id, requestId), eq(friendshipsTable.addresseeId, me.id), eq(friendshipsTable.status, "pending"))
@@ -145,31 +155,38 @@ router.patch("/friends/:requestId/respond", requireAuth, async (req: any, res): 
   }
 });
 
-// GET /api/social/messages/:userId
+// GET /api/social/messages/:userId — paginated, cursor-based
 router.get("/messages/:userId", requireAuth, async (req: any, res): Promise<void> => {
   try {
     const me = await getDbUser(req.clerkUserId);
     if (!me) { res.status(401).json({ error: "User not found" }); return; }
 
     const partnerId = Number(req.params.userId);
+    if (isNaN(partnerId)) { res.status(400).json({ error: "Invalid userId" }); return; }
+
     const limit = Math.min(Number(req.query.limit ?? 50), 100);
     const before = req.query.before ? Number(req.query.before) : undefined;
 
-    let query = db.select().from(messagesTable).where(
+    const conditions: any[] = [
       or(
         and(eq(messagesTable.senderId, me.id), eq(messagesTable.receiverId, partnerId)),
         and(eq(messagesTable.senderId, partnerId), eq(messagesTable.receiverId, me.id)),
-      )
-    ).$dynamic();
+      ),
+    ];
+    if (before) conditions.push(lt(messagesTable.id, before));
 
-    if (before) query = query.where(lt(messagesTable.id, before));
+    const messages = await db
+      .select()
+      .from(messagesTable)
+      .where(and(...conditions))
+      .orderBy(desc(messagesTable.id))
+      .limit(limit);
 
-    const messages = await query.orderBy(desc(messagesTable.createdAt)).limit(limit);
-
-    // Mark received messages as read
-    await db.update(messagesTable)
+    // Mark received messages as read in background
+    db.update(messagesTable)
       .set({ isRead: true })
-      .where(and(eq(messagesTable.senderId, partnerId), eq(messagesTable.receiverId, me.id), eq(messagesTable.isRead, false)));
+      .where(and(eq(messagesTable.senderId, partnerId), eq(messagesTable.receiverId, me.id), eq(messagesTable.isRead, false)))
+      .catch(() => {});
 
     res.json(messages.reverse().map(m => ({
       id: m.id,
@@ -186,14 +203,14 @@ router.get("/messages/:userId", requireAuth, async (req: any, res): Promise<void
 });
 
 // POST /api/social/messages/:userId
-router.post("/messages/:userId", requireAuth, async (req: any, res): Promise<void> => {
+router.post("/messages/:userId", requireAuth, validateBody(sendMessageSchema), async (req: any, res): Promise<void> => {
   try {
     const me = await getDbUser(req.clerkUserId);
     if (!me) { res.status(401).json({ error: "User not found" }); return; }
 
     const receiverId = Number(req.params.userId);
+    if (isNaN(receiverId)) { res.status(400).json({ error: "Invalid userId" }); return; }
     const { content } = req.body as { content: string };
-    if (!content?.trim()) { res.status(400).json({ error: "Content required" }); return; }
 
     const [msg] = await db.insert(messagesTable).values({
       senderId: me.id,
@@ -201,6 +218,16 @@ router.post("/messages/:userId", requireAuth, async (req: any, res): Promise<voi
       content: content.trim(),
       isRead: false,
     }).returning();
+
+    // Notify any SSE listeners for this receiver
+    notifySseClients(receiverId, {
+      id: msg.id,
+      senderId: msg.senderId,
+      receiverId: msg.receiverId,
+      content: msg.content,
+      isRead: msg.isRead,
+      createdAt: msg.createdAt.toISOString(),
+    });
 
     res.status(201).json({
       id: msg.id,
@@ -216,13 +243,58 @@ router.post("/messages/:userId", requireAuth, async (req: any, res): Promise<voi
   }
 });
 
+// SSE: in-memory registry of active client connections keyed by userId
+const sseClients = new Map<number, Set<any>>();
+
+function notifySseClients(userId: number, data: object) {
+  const clients = sseClients.get(userId);
+  if (!clients?.size) return;
+  const payload = `data: ${JSON.stringify(data)}\n\n`;
+  for (const res of clients) {
+    try { res.write(payload); } catch { /* ignore closed connections */ }
+  }
+}
+
+// GET /api/social/messages/:userId/stream — SSE for real-time messages
+router.get("/messages/:userId/stream", requireAuth, sseLimiter, async (req: any, res): Promise<void> => {
+  try {
+    const me = await getDbUser(req.clerkUserId);
+    if (!me) { res.status(401).json({ error: "User not found" }); return; }
+
+    // SSE headers
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no"); // disable nginx buffering
+    res.flushHeaders();
+
+    // Register client
+    if (!sseClients.has(me.id)) sseClients.set(me.id, new Set());
+    sseClients.get(me.id)!.add(res);
+
+    // Send heartbeat every 25s to keep the connection alive through proxies
+    const heartbeat = setInterval(() => {
+      try { res.write(": heartbeat\n\n"); } catch { clearInterval(heartbeat); }
+    }, 25_000);
+
+    // Cleanup on disconnect
+    req.on("close", () => {
+      clearInterval(heartbeat);
+      sseClients.get(me.id)?.delete(res);
+      if (sseClients.get(me.id)?.size === 0) sseClients.delete(me.id);
+    });
+  } catch (err) {
+    req.log.error({ err }, "Failed to establish SSE");
+    if (!res.headersSent) res.status(500).json({ error: "Internal error" });
+  }
+});
+
 // GET /api/social/conversations
 router.get("/conversations", requireAuth, async (req: any, res): Promise<void> => {
   try {
     const me = await getDbUser(req.clerkUserId);
     if (!me) { res.status(401).json({ error: "User not found" }); return; }
 
-    // Get last message per conversation partner using raw SQL for efficiency
     const rawConvos = await db.execute(sql`
       SELECT DISTINCT ON (partner_id)
         partner_id,

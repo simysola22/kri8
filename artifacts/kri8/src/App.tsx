@@ -16,6 +16,7 @@ import CalendarPage from './pages/calendar';
 import SocialPage from './pages/social';
 import MessagesPage from './pages/messages';
 import TrendsPage from './pages/trends';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 
@@ -170,43 +171,43 @@ function AppRoutes() {
       {/* Protected Routes */}
       <Route path="/dashboard">
         <DashboardProtect>
-          <Dashboard />
+          <ErrorBoundary><Dashboard /></ErrorBoundary>
         </DashboardProtect>
       </Route>
       <Route path="/ideas/:id">
         <DashboardProtect>
-           <IdeaDetail />
+          <ErrorBoundary><IdeaDetail /></ErrorBoundary>
         </DashboardProtect>
       </Route>
       <Route path="/settings">
         <DashboardProtect>
-           <Settings />
+          <ErrorBoundary><Settings /></ErrorBoundary>
         </DashboardProtect>
       </Route>
       <Route path="/calendar">
         <DashboardProtect>
-          <CalendarPage />
+          <ErrorBoundary><CalendarPage /></ErrorBoundary>
         </DashboardProtect>
       </Route>
       <Route path="/social">
         <DashboardProtect>
-          <SocialPage />
+          <ErrorBoundary><SocialPage /></ErrorBoundary>
         </DashboardProtect>
       </Route>
       <Route path="/messages">
         <DashboardProtect>
-          <MessagesPage />
+          <ErrorBoundary><MessagesPage /></ErrorBoundary>
         </DashboardProtect>
       </Route>
       <Route path="/trends">
         <DashboardProtect>
-          <TrendsPage />
+          <ErrorBoundary><TrendsPage /></ErrorBoundary>
         </DashboardProtect>
       </Route>
 
       {/* Public Routes */}
       <Route path="/profile/:username">
-        <PublicProfile />
+        <ErrorBoundary><PublicProfile /></ErrorBoundary>
       </Route>
       
       <Route>

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, integer, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, integer, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -13,7 +13,13 @@ export const friendshipsTable = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [uniqueIndex("unique_friendship").on(table.requesterId, table.addresseeId)],
+  (table) => [
+    uniqueIndex("unique_friendship").on(table.requesterId, table.addresseeId),
+    // Find all requests addressed to a user (pending requests inbox)
+    index("idx_friendships_addressee_status").on(table.addresseeId, table.status),
+    // Find all friendships for a user in either direction
+    index("idx_friendships_requester").on(table.requesterId),
+  ],
 );
 
 export const insertFriendshipSchema = createInsertSchema(friendshipsTable).omit({
