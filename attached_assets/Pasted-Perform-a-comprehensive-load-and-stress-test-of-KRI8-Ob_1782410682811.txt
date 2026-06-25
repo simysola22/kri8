@@ -1,0 +1,132 @@
+Perform a comprehensive load and stress test of KRI8.
+
+Objective:
+Simulate up to 25,000 concurrent active users performing realistic creator actions.
+
+Testing Requirements:
+
+1. Simulate realistic user behavior, including:
+
+* User registration
+* User login/logout
+* Dashboard loading
+* Creating ideas
+* Editing ideas
+* Deleting ideas
+* Creating branches
+* Creating nested sub-branches
+* Adding content notes
+* Adding video editing notes
+* Scheduling content
+* Moving ideas through workflow stages
+* Calendar interactions
+* Viewing creator profiles
+* Exporting PPTX files
+* Sending collaboration requests
+* Accepting collaboration requests
+* Sharing ideas
+* Searching ideas
+* Filtering ideas
+
+2. User Distribution
+
+Simulate:
+
+* 1,000 active users
+* 5,000 active users
+* 10,000 active users
+* 15,000 active users
+* 20,000 active users
+* 25,000 active users
+
+3. Realistic Usage Patterns
+
+Do not simulate users clicking continuously.
+
+Instead simulate:
+
+* Random delays
+* Different session lengths
+* Different activity levels
+* Peak traffic periods
+* Idle periods
+* Power users
+* Casual users
+
+4. Database Testing
+
+Measure:
+
+* Query performance
+* Insert performance
+* Update performance
+* Concurrent write performance
+* Index effectiveness
+
+Identify:
+
+* Slow queries
+* Table bottlenecks
+* Lock contention
+* Scaling limitations
+
+5. API Testing
+
+Measure:
+
+* Average response time
+* P95 response time
+* P99 response time
+* Error rate
+* Request throughput
+
+6. Infrastructure Testing
+
+Identify:
+
+* CPU bottlenecks
+* Memory bottlenecks
+* Network bottlenecks
+* Storage bottlenecks
+
+7. Security Testing
+
+Verify:
+
+* Authentication remains stable
+* Session handling remains stable
+* Rate limiting functions correctly
+* No privilege escalation issues appear under load
+
+8. Failure Testing
+
+Determine:
+
+* Maximum concurrent users before degradation
+* Maximum concurrent users before failure
+* Features most likely to fail first
+
+9. Optimization Report
+
+After testing provide:
+
+* Performance summary
+* Bottlenecks discovered
+* Recommended fixes
+* Database optimizations
+* Caching opportunities
+* Infrastructure recommendations
+
+10. Scaling Recommendations
+
+Estimate infrastructure requirements and monthly costs for:
+
+* 1,000 active users
+* 10,000 active users
+* 25,000 active users
+* 100,000 active users
+
+Important:
+Use realistic simulations, not artificial benchmark loops.
+
+The goal is to determine whether KRI8 is production-ready and identify all bottlenecks before launch.
