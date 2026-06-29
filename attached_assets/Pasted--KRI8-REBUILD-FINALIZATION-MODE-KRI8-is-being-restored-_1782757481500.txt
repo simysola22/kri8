@@ -1,0 +1,361 @@
+# KRI8 REBUILD + FINALIZATION MODE
+
+KRI8 is being restored from the last stable ZIP.
+
+The previous workspace became unstable after incomplete optimization attempts.
+
+Do NOT import previous optimizations blindly.
+
+Do NOT rebuild from scratch.
+
+Do NOT redesign UI.
+
+Work incrementally.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 1 — PROJECT HEALTH CHECK
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Before modifying anything:
+
+Verify:
+
+✓ dependencies install correctly
+
+✓ package manager detected
+
+✓ env variables present
+
+✓ Clerk configuration valid
+
+✓ database connectivity works
+
+✓ migrations present
+
+✓ build succeeds
+
+✓ app starts successfully
+
+Generate:
+
+Health Report
+
+List:
+
+Missing packages
+
+Broken imports
+
+Invalid configs
+
+Missing env vars
+
+Build warnings
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 2 — PERFORMANCE FIRST
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Investigate startup.
+
+Current target:
+
+Dashboard visible under 2 seconds.
+
+Interactive under 3 seconds.
+
+No white screen.
+
+No reconnect loop.
+
+No blank page.
+
+Check:
+
+Google Fonts
+
+fonts.googleapis.com
+
+fonts.gstatic.com
+
+@import Google Fonts
+
+Tailwind font config
+
+Remove all render-blocking fonts.
+
+Use:
+
+system-ui
+
+-apple-system
+
+Segoe UI
+
+Roboto
+
+Helvetica
+
+Arial
+
+sans-serif
+
+Investigate:
+
+Clerk startup
+
+React hydration
+
+Theme initialization
+
+Dashboard mount
+
+Lazy imports
+
+Suspense
+
+Chunk loading
+
+Code splitting
+
+Bundle size
+
+Generate:
+
+Startup Timeline Report
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 3 — SPLASH SCREEN
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Never dismiss splash early.
+
+Splash remains visible until:
+
+Auth Ready
+
+Hydration Complete
+
+Dashboard Mounted
+
+Critical State Loaded
+
+AppReady == TRUE
+
+Only then:
+
+Fade splash out.
+
+No white screen allowed.
+
+Desired behavior:
+
+Splash
+
+↓
+
+Dashboard
+
+No intermediate blank frame.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 4 — FEATURE COMPLETION
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Ensure these features exist and work.
+
+AUTH
+
+✓ Clerk login
+
+✓ signup
+
+✓ logout
+
+✓ sessions
+
+PROFILES
+
+✓ creator profiles
+
+✓ public profiles
+
+✓ profile editing
+
+IDEAS
+
+✓ create
+
+✓ edit
+
+✓ delete
+
+✓ archive
+
+✓ search
+
+✓ filters
+
+✓ nested branches
+
+✓ completion tracking
+
+✓ weekly stats
+
+NOTES
+
+✓ creator notes
+
+✓ story notes
+
+✓ editing notes
+
+CALENDAR
+
+✓ scheduling
+
+✓ monthly calendar
+
+✓ content planning
+
+✓ auto completion
+
+MESSAGING
+
+✓ conversations
+
+✓ replies
+
+✓ creator messaging
+
+FRIENDS
+
+✓ requests
+
+✓ search creators
+
+✓ social layer
+
+EXPORT
+
+✓ PPTX export
+
+✓ sharing
+
+DISCOVERY
+
+✓ inspiration engine
+
+✓ trends dashboard
+
+CREATOR POINTS
+
+✓ referral system
+
+✓ point tracking
+
+✓ early adopter rewards
+
+THEMES
+
+✓ multiple themes
+
+✓ persistence
+
+✓ premium appearance
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 5 — RELIABILITY
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Add:
+
+Zod validation
+
+Rate limiting
+
+Pagination
+
+DB indexes
+
+Error boundaries
+
+Caching opportunities
+
+Connection pooling
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 6 — TESTING
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Verify:
+
+100 users
+
+500 users
+
+1000 users
+
+2500 users
+
+5000 users
+
+Measure:
+
+CPU
+
+Memory
+
+DB latency
+
+API latency
+
+Bundle size
+
+Largest dependencies
+
+━━━━━━━━━━━━━━━━━━━━━━━
+PHASE 7 — FINAL REPORT
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Provide:
+
+Feature Score
+
+Performance Score
+
+Security Score
+
+Scalability Score
+
+Reliability Score
+
+Mobile Score
+
+Launch Readiness Score
+
+Target:
+
+Dashboard visible <2s
+
+Interactive <3s
+
+No white screen
+
+No reconnecting state
+
+No render-blocking fonts
+
+KRI8 Beta 0.9 ready.
+
+Only make changes incrementally.
+
+After every major change:
+
+Run.
+
+Test.
+
+Verify.
+
+Then continue.
