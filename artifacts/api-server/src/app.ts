@@ -7,10 +7,15 @@ import {
   clerkProxyMiddleware,
 } from "./middlewares/clerkProxyMiddleware";
 import { globalLimiter, writeLimiter } from "./middlewares/rateLimit";
+import { isDevMode, devAuthMiddleware } from "./middlewares/devAuthMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
+
+// Trust the reverse proxy (Replit / any load balancer) so rate-limiting
+// and IP detection work correctly behind X-Forwarded-For headers.
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -38,13 +43,20 @@ app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Standard Clerk auth — reads CLERK_PUBLISHABLE_KEY / CLERK_SECRET_KEY env vars
-app.use(
-  clerkMiddleware({
-    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-    secretKey: process.env.CLERK_SECRET_KEY,
-  }),
-);
+if (!isDevMode) {
+  app.use(
+    clerkMiddleware({
+      publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+      secretKey: process.env.CLERK_SECRET_KEY,
+    }),
+  );
+} else {
+  logger.warn(
+    "⚠️  Dev mode: Clerk keys missing — all requests authenticated as dev-user",
+  );
+}
+
+app.use(devAuthMiddleware);
 
 app.use("/api", globalLimiter);
 app.use("/api", writeLimiter);

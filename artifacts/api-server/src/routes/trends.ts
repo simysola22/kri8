@@ -1,17 +1,11 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
 import { createTrendProvider, analyzeIdea, generateInspiration } from "@workspace/trend-engine";
+import { requireAuth } from "./users";
 
 const router = Router();
 
 let dashboardCache: { data: unknown; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  if (!auth?.userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  next();
-};
 
 // GET /api/trends/dashboard
 router.get("/dashboard", requireAuth, async (req: any, res): Promise<void> => {

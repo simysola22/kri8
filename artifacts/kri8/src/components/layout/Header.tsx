@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useClerk, useUser } from "@clerk/react";
+import { useAppUser } from "@/lib/AppUserContext";
 import { Search, Moon, Settings, LogOut, FileText, UserCircle, Calendar, Users, MessageSquare, TrendingUp } from "lucide-react";
 import { THEMES, applyTheme } from "@/lib/themes";
 import { useUpdateMe } from "@workspace/api-client-react";
@@ -17,8 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Header() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { user, signOut } = useAppUser();
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const updateMe = useUpdateMe();

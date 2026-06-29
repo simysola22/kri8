@@ -1,19 +1,12 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
 import { db, usersTable, friendshipsTable, messagesTable } from "@workspace/db";
 import { eq, or, and, lt, gt, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { validateBody } from "../middlewares/validate";
 import { sseLimiter } from "../middlewares/rateLimit";
+import { requireAuth } from "./users";
 
 const router = Router();
-
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  if (!auth?.userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  req.clerkUserId = auth.userId;
-  next();
-};
 
 async function getDbUser(clerkUserId: string) {
   const rows = await db.select().from(usersTable).where(eq(usersTable.clerkUserId, clerkUserId)).limit(1);

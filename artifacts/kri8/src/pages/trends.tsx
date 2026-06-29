@@ -11,11 +11,12 @@ import { useGetTrendDashboard, useAnalyzeIdea, useInspireIdea, getGetTrendDashbo
 import { TrendingUp, Lightbulb, Sparkles, Hash, BarChart3, Search, ChevronUp, ChevronDown, Minus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type TrendingTopic = { topic: string; score: number; category: string; description: string; relatedHashtags?: string[] | null };
-type TrendingHashtag = { hashtag: string; postCount: number; growthRate: number; platforms?: string[] | null };
-type TrendDashboard = { trendingTopics: TrendingTopic[]; trendingHashtags: TrendingHashtag[]; lastUpdated: string; provider: string };
-type AnalysisResult = { relevanceScore: number; matchedTopics: string[]; matchedHashtags: string[]; suggestion: string; estimatedReach: string };
-type InspirationResult = { ideas: Array<{ title: string; angle: string; suggestedHashtags: string[] }> };
+type TrendingTopic = { id: string; name: string; category: string; growthPercent: number; volume: number; platform: string };
+type TrendingHashtag = { tag: string; platform: string; volume: number; growthPercent: number };
+type ContentCategory = { name: string; growthPercent: number; topContent: string[] };
+type TrendDashboard = { topics: TrendingTopic[]; hashtags: TrendingHashtag[]; categories: ContentCategory[]; lastUpdated: string; provider: string };
+type AnalysisResult = { relevanceScore: number; relatedTopics: TrendingTopic[]; relatedHashtags: TrendingHashtag[]; contentOpportunities: string[]; suggestedAngles: string[] };
+type InspirationResult = { relatedIdeas: string[]; alternativeHooks: string[]; titleSuggestions: string[]; audienceQuestions: string[] };
 
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 80 ? "text-emerald-400 bg-emerald-500/20" : score >= 50 ? "text-primary bg-primary/20" : "text-blue-400 bg-blue-500/20";
@@ -23,8 +24,8 @@ function ScoreBadge({ score }: { score: number }) {
 }
 
 function GrowthIndicator({ rate }: { rate: number }) {
-  if (rate > 0.05) return <span className="flex items-center gap-0.5 text-emerald-400 text-xs"><ChevronUp className="h-3 w-3" />{(rate * 100).toFixed(0)}%</span>;
-  if (rate < -0.05) return <span className="flex items-center gap-0.5 text-red-400 text-xs"><ChevronDown className="h-3 w-3" />{Math.abs(rate * 100).toFixed(0)}%</span>;
+  if (rate > 5) return <span className="flex items-center gap-0.5 text-emerald-400 text-xs"><ChevronUp className="h-3 w-3" />{rate.toFixed(0)}%</span>;
+  if (rate < -5) return <span className="flex items-center gap-0.5 text-red-400 text-xs"><ChevronDown className="h-3 w-3" />{Math.abs(rate).toFixed(0)}%</span>;
   return <span className="flex items-center gap-0.5 text-muted-foreground text-xs"><Minus className="h-3 w-3" />Stable</span>;
 }
 
@@ -113,70 +114,92 @@ export default function TrendsPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
             ) : d ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Trending Topics */}
-                <Card className="bg-card border-white/10">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-primary" />
-                      Trending Topics
-                    </CardTitle>
-                    <CardDescription>Hot content themes right now</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {d.trendingTopics.map((topic, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0 mt-0.5">
-                          {i + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-medium text-sm">{topic.topic}</p>
-                            <ScoreBadge score={topic.score} />
-                            <Badge variant="outline" className="border-white/20 text-xs text-muted-foreground">{topic.category}</Badge>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Trending Topics */}
+                  <Card className="bg-card border-white/10">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                        Trending Topics
+                      </CardTitle>
+                      <CardDescription>Hot content themes right now</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {d.topics.map((topic, i) => (
+                        <div key={topic.id} className="flex items-start gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0 mt-0.5">
+                            {i + 1}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-1">{topic.description}</p>
-                          {topic.relatedHashtags && topic.relatedHashtags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {topic.relatedHashtags.slice(0, 4).map(h => (
-                                <span key={h} className="text-[10px] text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">#{h}</span>
-                              ))}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-medium text-sm">{topic.name}</p>
+                              <ScoreBadge score={topic.growthPercent} />
+                              <Badge variant="outline" className="border-white/20 text-xs text-muted-foreground">{topic.category}</Badge>
                             </div>
-                          )}
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-muted-foreground">{formatCount(topic.volume)} views</span>
+                              <Badge variant="outline" className="border-white/10 text-[10px] text-muted-foreground capitalize px-1.5 py-0">{topic.platform}</Badge>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                      ))}
+                    </CardContent>
+                  </Card>
 
-                {/* Trending Hashtags */}
-                <Card className="bg-card border-white/10">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Hash className="h-5 w-5 text-blue-400" />
-                      Trending Hashtags
-                    </CardTitle>
-                    <CardDescription>Tags driving discovery</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {d.trendingHashtags.map((tag, i) => (
-                      <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                        <span className="text-sm font-bold text-blue-400 min-w-0 truncate">#{tag.hashtag}</span>
-                        <div className="flex items-center gap-3 ml-auto shrink-0">
-                          <span className="text-xs text-muted-foreground">{formatCount(tag.postCount)} posts</span>
-                          <GrowthIndicator rate={tag.growthRate} />
-                          {tag.platforms && tag.platforms.length > 0 && (
-                            <div className="flex gap-1">
-                              {tag.platforms.map(p => (
-                                <Badge key={p} variant="outline" className="text-[10px] border-white/20 px-1.5 py-0">{p}</Badge>
+                  {/* Trending Hashtags */}
+                  <Card className="bg-card border-white/10">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Hash className="h-5 w-5 text-blue-400" />
+                        Trending Hashtags
+                      </CardTitle>
+                      <CardDescription>Tags driving discovery</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {d.hashtags.map((tag, i) => (
+                        <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                          <span className="text-sm font-bold text-blue-400 min-w-0 truncate">{tag.tag}</span>
+                          <div className="flex items-center gap-3 ml-auto shrink-0">
+                            <span className="text-xs text-muted-foreground">{formatCount(tag.volume)} posts</span>
+                            <GrowthIndicator rate={tag.growthPercent} />
+                            <Badge variant="outline" className="text-[10px] border-white/20 px-1.5 py-0 capitalize">{tag.platform}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Categories */}
+                {d.categories.length > 0 && (
+                  <Card className="bg-card border-white/10">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5 text-primary" />
+                        Content Categories
+                      </CardTitle>
+                      <CardDescription>Fastest-growing content spaces</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {d.categories.map((cat, i) => (
+                          <div key={i} className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium">{cat.name}</p>
+                              <GrowthIndicator rate={cat.growthPercent} />
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {cat.topContent.slice(0, 3).map((c, j) => (
+                                <span key={j} className="text-[10px] text-muted-foreground bg-white/5 px-1.5 py-0.5 rounded">{c}</span>
                               ))}
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             ) : null}
           </TabsContent>
@@ -235,7 +258,6 @@ export default function TrendsPage() {
                       <div className="w-16 h-16 rounded-full border-4 flex items-center justify-center"
                         style={{
                           borderColor: analyzeResult.relevanceScore >= 70 ? '#10b981' : analyzeResult.relevanceScore >= 40 ? '#d4af37' : '#6b7280',
-                          background: `conic-gradient(currentColor ${analyzeResult.relevanceScore * 3.6}deg, transparent 0deg)`
                         }}
                       >
                         <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
@@ -244,33 +266,55 @@ export default function TrendsPage() {
                       </div>
                     </div>
 
-                    <div>
-                      <p className="text-sm font-medium mb-2">Matched Topics</p>
-                      <div className="flex flex-wrap gap-2">
-                        {analyzeResult.matchedTopics.length > 0
-                          ? analyzeResult.matchedTopics.map(t => <Badge key={t} className="bg-primary/20 text-primary border-0">{t}</Badge>)
-                          : <p className="text-sm text-muted-foreground">No matching topics found</p>}
+                    {analyzeResult.relatedTopics.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Matched Topics</p>
+                        <div className="flex flex-wrap gap-2">
+                          {analyzeResult.relatedTopics.map(t => (
+                            <Badge key={t.id} className="bg-primary/20 text-primary border-0">{t.name}</Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div>
-                      <p className="text-sm font-medium mb-2">Suggested Hashtags</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {analyzeResult.matchedHashtags.map(h => (
-                          <span key={h} className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">#{h}</span>
-                        ))}
+                    {analyzeResult.relatedHashtags.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Related Hashtags</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {analyzeResult.relatedHashtags.map(h => (
+                            <span key={h.tag} className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">{h.tag}</span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Recommendation</p>
-                      <p className="text-sm">{analyzeResult.suggestion}</p>
-                    </div>
+                    {analyzeResult.contentOpportunities.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Content Opportunities</p>
+                        <ul className="space-y-1.5">
+                          {analyzeResult.contentOpportunities.map((opp, i) => (
+                            <li key={i} className="text-xs text-muted-foreground flex gap-2">
+                              <span className="text-primary shrink-0">→</span>
+                              <span>{opp}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Estimated Reach</span>
-                      <span className="font-medium text-primary">{analyzeResult.estimatedReach}</span>
-                    </div>
+                    {analyzeResult.suggestedAngles.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Suggested Angles</p>
+                        <ul className="space-y-1.5">
+                          {analyzeResult.suggestedAngles.map((angle, i) => (
+                            <li key={i} className="text-xs text-muted-foreground flex gap-2">
+                              <span className="text-primary shrink-0">{i + 1}.</span>
+                              <span>{angle}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ) : (
@@ -325,49 +369,82 @@ export default function TrendsPage() {
               </Card>
 
               {inspireResult ? (
-                <Card className="bg-card border-white/10">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-primary" />
-                      Content Ideas
-                    </CardTitle>
-                    <CardDescription>{inspireResult.ideas.length} ideas generated from current trends</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {inspireResult.ideas.map((idea, i) => (
-                      <div key={i} className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 space-y-2">
-                        <div className="flex items-start gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold shrink-0 mt-0.5">
-                            {i + 1}
+                <div className="space-y-4">
+                  {inspireResult.relatedIdeas.length > 0 && (
+                    <Card className="bg-card border-white/10">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Lightbulb className="h-4 w-4 text-primary" />
+                          Content Ideas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {inspireResult.relatedIdeas.map((idea, i) => (
+                          <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group">
+                            <span className="text-primary text-xs font-bold shrink-0 mt-0.5">{i + 1}.</span>
+                            <p className="text-sm flex-1">{idea}</p>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                              onClick={() => { setAnalyzeForm({ title: idea, notes: "" }); toast({ title: "Copied to analyzer" }); }}
+                            >
+                              Analyze
+                            </Button>
                           </div>
-                          <p className="font-medium text-sm">{idea.title}</p>
-                        </div>
-                        <p className="text-xs text-muted-foreground pl-8">{idea.angle}</p>
-                        {idea.suggestedHashtags.length > 0 && (
-                          <div className="pl-8 flex flex-wrap gap-1">
-                            {idea.suggestedHashtags.map(h => (
-                              <span key={h} className="text-[10px] text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">#{h}</span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="pl-8">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs border-white/20 hover:bg-white/10"
-                            onClick={() => {
-                              setAnalyzeForm({ title: idea.title, notes: idea.angle });
-                              toast({ title: "Idea copied to analyzer" });
-                            }}
-                          >
-                            <Lightbulb className="h-3 w-3 mr-1" />
-                            Analyze This
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {inspireResult.alternativeHooks.length > 0 && (
+                    <Card className="bg-card border-white/10">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          Opening Hooks
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {inspireResult.alternativeHooks.map((hook, i) => (
+                          <p key={i} className="text-sm p-2.5 rounded-lg bg-white/5 italic text-muted-foreground">"{hook}"</p>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {inspireResult.titleSuggestions.length > 0 && (
+                    <Card className="bg-card border-white/10">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-primary" />
+                          Title Options
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {inspireResult.titleSuggestions.map((title, i) => (
+                          <p key={i} className="text-sm font-medium p-2.5 rounded-lg bg-white/5">{title}</p>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {inspireResult.audienceQuestions.length > 0 && (
+                    <Card className="bg-card border-white/10">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Search className="h-4 w-4 text-primary" />
+                          Audience Questions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {inspireResult.audienceQuestions.map((q, i) => (
+                          <p key={i} className="text-sm p-2.5 rounded-lg bg-white/5 text-muted-foreground">{q}</p>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               ) : (
                 <Card className="bg-card border-white/10 border-dashed">
                   <CardContent className="py-16 flex flex-col items-center justify-center text-center">

@@ -13,8 +13,59 @@
     <meta name="twitter:title" content="kri8" />
     <meta name="twitter:description" content="kri8 — capture, branch, schedule, and discover trending angles for your content ideas." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      #kri8-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #0d1117;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.45s ease;
+      }
+      #kri8-splash.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .kri8-splash-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: white;
+        animation: kri8-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+        opacity: 0.15;
+      }
+      .kri8-splash-logo {
+        position: relative;
+        width: 128px;
+        height: 128px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 60px rgba(255,255,255,0.25);
+      }
+      .kri8-splash-logo span {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #1a1f35;
+        letter-spacing: -0.05em;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      @keyframes kri8-ping {
+        75%, 100% { transform: scale(1.6); opacity: 0; }
+      }
+    </style>
   </head>
   <body>
+    <div id="kri8-splash">
+      <div class="kri8-splash-logo">
+        <div class="kri8-splash-ring"></div>
+        <span>kri8</span>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

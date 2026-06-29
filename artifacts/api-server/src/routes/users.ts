@@ -1,31 +1,45 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
 import { db, usersTable } from "@workspace/db";
-import { eq, or, ilike, sql } from "drizzle-orm";
+import { eq, or, ilike } from "drizzle-orm";
+import { isDevMode, DEV_CLERK_USER_ID } from "../middlewares/devAuthMiddleware";
 
 const router = Router();
 
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  const userId = auth?.userId;
-  if (!userId) {
-    res.status(401).json({ error: "Unauthorized" }); return;
+function safeGetAuth(req: any): { userId: string | null; sessionClaims: Record<string, unknown> } {
+  if (isDevMode) return { userId: null, sessionClaims: {} };
+  try {
+    const { getAuth } = require("@clerk/express") as typeof import("@clerk/express");
+    const auth = getAuth(req);
+    return { userId: auth?.userId ?? null, sessionClaims: (auth?.sessionClaims ?? {}) as Record<string, unknown> };
+  } catch {
+    return { userId: null, sessionClaims: {} };
   }
-  req.clerkUserId = userId;
+}
+
+export const requireAuth = (req: any, res: any, next: any) => {
+  const { userId } = safeGetAuth(req);
+  const devUserId: string | undefined = req.__devUserId;
+  const effective = userId || devUserId || null;
+  if (!effective) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  req.clerkUserId = effective;
   next();
 };
 
-// Upsert user from Clerk data
-async function getOrCreateUser(clerkUserId: string, email: string, name?: string) {
+async function getOrCreateUser(
+  clerkUserId: string,
+  email: string,
+  name?: string,
+) {
   const existing = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.clerkUserId, clerkUserId))
     .limit(1);
 
-  if (existing.length > 0) {
-    return existing[0];
-  }
+  if (existing.length > 0) return existing[0];
 
   const [newUser] = await db
     .insert(usersTable)
@@ -35,15 +49,23 @@ async function getOrCreateUser(clerkUserId: string, email: string, name?: string
   return newUser;
 }
 
+export { getOrCreateUser };
+
 // GET /api/users/me
 router.get("/me", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
+    const clerkUserId: string = req.clerkUserId;
+    let email = "";
+    let name: string | undefined;
 
-    // Get email from Clerk session claims
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const name = (auth?.sessionClaims?.name as string) || undefined;
+    if (clerkUserId === DEV_CLERK_USER_ID) {
+      email = "demo@kri8.dev";
+      name = "Demo Creator";
+    } else {
+      const { sessionClaims } = safeGetAuth(req);
+      email = (sessionClaims?.email as string) || "";
+      name = (sessionClaims?.name as string) || undefined;
+    }
 
     const user = await getOrCreateUser(clerkUserId, email, name);
 
@@ -68,8 +90,7 @@ router.get("/me", requireAuth, async (req: any, res): Promise<void> => {
 // PATCH /api/users/me
 router.patch("/me", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const clerkUserId = req.clerkUserId;
-    // Find user first
+    const clerkUserId: string = req.clerkUserId;
     const existing = await db
       .select()
       .from(usersTable)
@@ -77,10 +98,12 @@ router.patch("/me", requireAuth, async (req: any, res): Promise<void> => {
       .limit(1);
 
     if (!existing.length) {
-      res.status(404).json({ error: "User not found" }); return;
+      res.status(404).json({ error: "User not found" });
+      return;
     }
 
-    const { name, username, themePreference, bio, avatarUrl, isPublic } = req.body;
+    const { name, username, themePreference, bio, avatarUrl, isPublic } =
+      req.body;
     const updates: Partial<typeof usersTable.$inferInsert> = {};
     if (name !== undefined) updates.name = name;
     if (username !== undefined) updates.username = username;
@@ -117,26 +140,35 @@ router.patch("/me", requireAuth, async (req: any, res): Promise<void> => {
 router.get("/search", requireAuth, async (req: any, res): Promise<void> => {
   try {
     const q = String(req.query.q ?? "").trim();
-    if (!q || q.length < 2) { res.json([]); return; }
+    if (!q || q.length < 2) {
+      res.json([]);
+      return;
+    }
 
     const users = await db
       .select()
       .from(usersTable)
-      .where(or(ilike(usersTable.name, `%${q}%`), ilike(usersTable.username, `%${q}%`)))
+      .where(
+        or(
+          ilike(usersTable.name, `%${q}%`),
+          ilike(usersTable.username, `%${q}%`),
+        ),
+      )
       .limit(20);
 
-    res.json(users.map(u => ({
-      id: u.id,
-      name: u.name,
-      username: u.username,
-      bio: u.bio,
-      avatarUrl: u.avatarUrl,
-    })));
+    res.json(
+      users.map((u) => ({
+        id: u.id,
+        name: u.name,
+        username: u.username,
+        bio: u.bio,
+        avatarUrl: u.avatarUrl,
+      })),
+    );
   } catch (err) {
     req.log.error({ err }, "Failed to search users");
     res.status(500).json({ error: "Internal error" });
   }
 });
 
-export { requireAuth, getOrCreateUser };
 export default router;

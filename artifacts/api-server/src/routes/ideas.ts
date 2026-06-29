@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
+
 import { db, usersTable, ideasTable } from "@workspace/db";
 import { eq, and, isNull, sql, desc, ilike, or, lte, gt } from "drizzle-orm";
 import { z } from "zod";
@@ -112,10 +112,8 @@ const createBranchSchema = z.object({
 // GET /api/ideas — paginated, DB-level search and filter
 router.get("/", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     // Throttled auto-mark — runs at most once per minute per user
     autoMarkUsed(user.id).catch(() => {});
@@ -169,10 +167,8 @@ router.get("/", requireAuth, async (req: any, res): Promise<void> => {
 // POST /api/ideas
 router.post("/", requireAuth, validateBody(createIdeaSchema), async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const { title, insight, origin, notes, videoEditingNotes, customDate } = req.body;
     const today = new Date().toISOString().split("T")[0];
@@ -201,10 +197,8 @@ router.post("/", requireAuth, validateBody(createIdeaSchema), async (req: any, r
 // GET /api/ideas/stats — push aggregates to SQL
 router.get("/stats", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const today = new Date();
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
@@ -242,10 +236,8 @@ router.get("/stats", requireAuth, async (req: any, res): Promise<void> => {
 // GET /api/ideas/recent
 router.get("/recent", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const limit = Math.min(parseInt(req.query.limit as string) || 5, 20);
 
@@ -266,10 +258,8 @@ router.get("/recent", requireAuth, async (req: any, res): Promise<void> => {
 // GET /api/ideas/calendar?month=YYYY-MM
 router.get("/calendar", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const month = String(req.query.month ?? "");
     if (!/^\d{4}-\d{2}$/.test(month)) {
@@ -306,10 +296,8 @@ router.get("/calendar", requireAuth, async (req: any, res): Promise<void> => {
 // GET /api/ideas/:id
 router.get("/:id", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const id = parseInt(req.params.id);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid idea id" }); return; }
@@ -337,10 +325,8 @@ router.get("/:id", requireAuth, async (req: any, res): Promise<void> => {
 // PATCH /api/ideas/:id
 router.patch("/:id", requireAuth, validateBody(updateIdeaSchema), async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const id = parseInt(req.params.id);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid idea id" }); return; }
@@ -383,10 +369,8 @@ router.patch("/:id", requireAuth, validateBody(updateIdeaSchema), async (req: an
 // DELETE /api/ideas/:id
 router.delete("/:id", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const id = parseInt(req.params.id);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid idea id" }); return; }
@@ -430,10 +414,8 @@ router.delete("/:id", requireAuth, async (req: any, res): Promise<void> => {
 // GET /api/ideas/:id/branches
 router.get("/:id/branches", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const id = parseInt(req.params.id);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid idea id" }); return; }
@@ -449,10 +431,8 @@ router.get("/:id/branches", requireAuth, async (req: any, res): Promise<void> =>
 // POST /api/ideas/:id/branches
 router.post("/:id/branches", requireAuth, validateBody(createBranchSchema), async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const parentId = parseInt(req.params.id);
     if (isNaN(parentId)) { res.status(400).json({ error: "Invalid idea id" }); return; }
@@ -499,10 +479,8 @@ router.post("/:id/branches", requireAuth, validateBody(createBranchSchema), asyn
 // POST /api/ideas/:id/mark-used
 router.post("/:id/mark-used", requireAuth, async (req: any, res): Promise<void> => {
   try {
-    const auth = getAuth(req);
-    const clerkUserId = auth?.userId!;
-    const email = (auth?.sessionClaims?.email as string) || "";
-    const user = await getOrCreateUser(clerkUserId, email);
+    const clerkUserId = req.clerkUserId as string;
+    const user = await getOrCreateUser(clerkUserId, "");
 
     const id = parseInt(req.params.id);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid idea id" }); return; }
