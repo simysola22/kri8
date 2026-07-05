@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser, Show } from '@clerk/react';
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -24,6 +24,12 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 const IS_DEV_MODE = !clerkPubKey;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const landingUrl = basePath || "/";
+
+const clerkProxyUrl = import.meta.env.PROD
+  ? `${window.location.protocol}//${window.location.host}/api/__clerk`
+  : undefined;
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
@@ -70,49 +76,33 @@ function AppGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-// ─── Route definitions (shared) ───────────────────────────────────────────────
+// ─── DEV MODE (local fallback — Clerk keys absent) ────────────────────────────
 
-function ProtectedRoutes({ signedIn, signedOut }: { signedIn: ReactNode; signedOut: ReactNode }) {
-  // Renders signed-in content; the caller provides the guard components
-  return <>{signedIn}</>;
+function DevKeysMissing() {
+  useEffect(() => { dismissSplash(); }, []);
+  return (
+    <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] text-white">
+      <div className="text-center space-y-4 p-8 rounded-2xl bg-white/5 border border-white/10 max-w-sm w-full">
+        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto">
+          <span className="text-xl font-black text-[#1a1f35]">kri8</span>
+        </div>
+        <h2 className="text-xl font-bold">Authentication Not Configured</h2>
+        <p className="text-slate-400 text-sm">
+          Set <code className="text-yellow-300">VITE_CLERK_PUBLISHABLE_KEY</code> and{" "}
+          <code className="text-yellow-300">CLERK_SECRET_KEY</code> to enable authentication.
+        </p>
+      </div>
+    </div>
+  );
 }
-
-// ─── DEV MODE ────────────────────────────────────────────────────────────────
 
 function DevRoutes() {
   return (
     <Switch>
-      <Route path="/"><Redirect to="/dashboard" /></Route>
       <Route path="/sign-in/*?"><DevSignInPage basePath={basePath} /></Route>
       <Route path="/sign-up/*?"><DevSignInPage basePath={basePath} /></Route>
-
-      <Route path="/dashboard">
-        <AppGate><ErrorBoundary><Dashboard /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/ideas/:id">
-        <AppGate><ErrorBoundary><IdeaDetail /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/settings">
-        <AppGate><ErrorBoundary><Settings /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/calendar">
-        <AppGate><ErrorBoundary><CalendarPage /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/social">
-        <AppGate><ErrorBoundary><SocialPage /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/messages">
-        <AppGate><ErrorBoundary><MessagesPage /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/trends">
-        <AppGate><ErrorBoundary><TrendsPage /></ErrorBoundary></AppGate>
-      </Route>
-      <Route path="/profile/:username">
-        <ErrorBoundary><PublicProfile /></ErrorBoundary>
-      </Route>
-      <Route>
-        <div className="flex min-h-screen items-center justify-center bg-[#0d1117] text-white">404 - Not Found</div>
-      </Route>
+      <Route path="/profile/:username"><ErrorBoundary><PublicProfile /></ErrorBoundary></Route>
+      <Route><DevKeysMissing /></Route>
     </Switch>
   );
 }
@@ -149,10 +139,19 @@ function ClerkUserBridge({ children }: { children: ReactNode }) {
         }
       : null,
     isLoaded,
-    signOut: (opts) => signOut(opts),
+    signOut: (opts) => signOut({ redirectUrl: opts?.redirectUrl ?? landingUrl }),
   };
 
   return <AppUserProvider value={value}>{children}</AppUserProvider>;
+}
+
+// Dismisses the splash once Clerk finishes initializing, regardless of auth state
+function SplashDismisser() {
+  const { isLoaded } = useUser();
+  useEffect(() => {
+    if (isLoaded) dismissSplash();
+  }, [isLoaded]);
+  return null;
 }
 
 function ClerkQueryCacheInvalidator() {
@@ -178,7 +177,7 @@ function ClerkProtect({ children }: { children: ReactNode }) {
         <AppGate>{children}</AppGate>
       </Show>
       <Show when="signed-out">
-        <Redirect to="/" />
+        <Redirect to="/sign-in" />
       </Show>
     </>
   );
@@ -216,14 +215,14 @@ function ClerkRoutes() {
       <Route path="/sign-in/*?">
         <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] px-4">
           <div className="z-10 w-full max-w-[440px]">
-            <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+            <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/dashboard`} />
           </div>
         </div>
       </Route>
       <Route path="/sign-up/*?">
         <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] px-4">
           <div className="z-10 w-full max-w-[440px]">
-            <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+            <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} fallbackRedirectUrl={`${basePath}/dashboard`} />
           </div>
         </div>
       </Route>
@@ -276,14 +275,17 @@ function ClerkApp() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey!}
+      proxyUrl={clerkProxyUrl}
       appearance={appearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
+      afterSignOutUrl={landingUrl}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
       <ClerkUserBridge>
         <QueryClientProvider client={queryClient}>
+          <SplashDismisser />
           <ClerkQueryCacheInvalidator />
           <ClerkRoutes />
           <Toaster />

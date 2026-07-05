@@ -5,6 +5,7 @@ import { clerkMiddleware } from "@clerk/express";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
+  getClerkProxyHost,
 } from "./middlewares/clerkProxyMiddleware";
 import { globalLimiter, writeLimiter } from "./middlewares/rateLimit";
 import { isDevMode, devAuthMiddleware } from "./middlewares/devAuthMiddleware";
@@ -13,8 +14,8 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
-// Trust the reverse proxy (Replit / any load balancer) so rate-limiting
-// and IP detection work correctly behind X-Forwarded-For headers.
+// Trust the reverse proxy (Replit / Railway / any load balancer) so
+// rate-limiting and IP detection work correctly behind X-Forwarded-For headers.
 app.set("trust proxy", 1);
 
 app.use(
@@ -37,6 +38,7 @@ app.use(
   }),
 );
 
+// Clerk proxy must be mounted before express.json()
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
 app.use(cors({ credentials: true, origin: true }));
@@ -44,15 +46,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 if (!isDevMode) {
-  app.use(
-    clerkMiddleware({
+  app.use((req, res, next) => {
+    const protocol = (req.headers["x-forwarded-proto"] as string) || "https";
+    const host = getClerkProxyHost(req) || "";
+    const proxyUrl = host ? `${protocol}://${host}${CLERK_PROXY_PATH}` : undefined;
+
+    return clerkMiddleware({
       publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
       secretKey: process.env.CLERK_SECRET_KEY,
-    }),
-  );
+      ...(proxyUrl ? { proxyUrl } : {}),
+    })(req, res, next);
+  });
 } else {
   logger.warn(
-    "⚠️  Dev mode: Clerk keys missing — all requests authenticated as dev-user",
+    "⚠️  Dev mode: Clerk keys missing — authentication is disabled",
   );
 }
 

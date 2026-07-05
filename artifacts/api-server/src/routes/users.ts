@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db, usersTable } from "@workspace/db";
 import { eq, or, ilike } from "drizzle-orm";
-import { isDevMode, DEV_CLERK_USER_ID } from "../middlewares/devAuthMiddleware";
+import { isDevMode } from "../middlewares/devAuthMiddleware";
 
 const router = Router();
 
@@ -55,17 +55,9 @@ export { getOrCreateUser };
 router.get("/me", requireAuth, async (req: any, res): Promise<void> => {
   try {
     const clerkUserId: string = req.clerkUserId;
-    let email = "";
-    let name: string | undefined;
-
-    if (clerkUserId === DEV_CLERK_USER_ID) {
-      email = "demo@kri8.dev";
-      name = "Demo Creator";
-    } else {
-      const { sessionClaims } = safeGetAuth(req);
-      email = (sessionClaims?.email as string) || "";
-      name = (sessionClaims?.name as string) || undefined;
-    }
+    const { sessionClaims } = safeGetAuth(req);
+    const email = (sessionClaims?.email as string) || "";
+    const name = (sessionClaims?.name as string) || undefined;
 
     const user = await getOrCreateUser(clerkUserId, email, name);
 
