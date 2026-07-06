@@ -1,27 +1,44 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
-import { ClerkProvider, SignIn, SignUp, useClerk, useUser, Show } from '@clerk/react';
+import {
+  Switch,
+  Route,
+  useLocation,
+  Router as WouterRouter,
+  Redirect,
+} from "wouter";
+import {
+  ClerkProvider,
+  SignIn,
+  SignUp,
+  useClerk,
+  useUser,
+  Show,
+} from "@clerk/react";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
-import { applyTheme } from './lib/themes';
-import { useGetMe } from '@workspace/api-client-react';
-import { DevAuthProvider, DevSignInPage } from './lib/devAuth';
-import { AppUserProvider, type AppUserCtx } from './lib/AppUserContext';
+import { applyTheme } from "./lib/themes";
+import { useGetMe } from "@workspace/api-client-react";
+import { DevAuthProvider, DevSignInPage } from "./lib/devAuth";
+import { AppUserProvider, type AppUserCtx } from "./lib/AppUserContext";
 
-import Dashboard from './pages/dashboard';
-import IdeaDetail from './pages/idea-detail';
-import Settings from './pages/settings';
-import PublicProfile from './pages/public-profile';
-import CalendarPage from './pages/calendar';
-import SocialPage from './pages/social';
-import MessagesPage from './pages/messages';
-import TrendsPage from './pages/trends';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import Dashboard from "./pages/dashboard";
+import IdeaDetail from "./pages/idea-detail";
+import Settings from "./pages/settings";
+import PublicProfile from "./pages/public-profile";
+import CalendarPage from "./pages/calendar";
+import SocialPage from "./pages/social";
+import MessagesPage from "./pages/messages";
+import TrendsPage from "./pages/trends";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
+  | string
+  | undefined;
+console.log("PUB KEY:", clerkPubKey);
+console.log("ENV:", import.meta.env);
 const IS_DEV_MODE = !clerkPubKey;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -38,9 +55,9 @@ function stripBase(path: string): string {
 }
 
 function dismissSplash() {
-  const splash = document.getElementById('kri8-splash');
-  if (splash && !splash.classList.contains('fade-out')) {
-    splash.classList.add('fade-out');
+  const splash = document.getElementById("kri8-splash");
+  if (splash && !splash.classList.contains("fade-out")) {
+    splash.classList.add("fade-out");
     setTimeout(() => splash.remove(), 500);
   }
 }
@@ -53,7 +70,9 @@ function LoadingScreen() {
       <div className="relative flex items-center justify-center">
         <div className="absolute inset-0 rounded-full bg-white animate-ping opacity-20 w-32 h-32"></div>
         <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.3)] z-10">
-          <span className="text-4xl font-black text-[#1a1f35] tracking-tighter">kri8</span>
+          <span className="text-4xl font-black text-[#1a1f35] tracking-tighter">
+            kri8
+          </span>
         </div>
       </div>
     </div>
@@ -62,7 +81,9 @@ function LoadingScreen() {
 
 // Gate: fetches current user from DB, applies theme, then dismisses splash
 function AppGate({ children }: { children: ReactNode }) {
-  const { data: userProfile, isLoading } = useGetMe({ query: { enabled: true, retry: false, queryKey: [] } });
+  const { data: userProfile, isLoading } = useGetMe({
+    query: { enabled: true, retry: false, queryKey: [] },
+  });
 
   useEffect(() => {
     if (userProfile?.themePreference) applyTheme(userProfile.themePreference);
@@ -79,7 +100,9 @@ function AppGate({ children }: { children: ReactNode }) {
 // ─── DEV MODE (local fallback — Clerk keys absent) ────────────────────────────
 
 function DevKeysMissing() {
-  useEffect(() => { dismissSplash(); }, []);
+  useEffect(() => {
+    dismissSplash();
+  }, []);
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] text-white">
       <div className="text-center space-y-4 p-8 rounded-2xl bg-white/5 border border-white/10 max-w-sm w-full">
@@ -88,8 +111,10 @@ function DevKeysMissing() {
         </div>
         <h2 className="text-xl font-bold">Authentication Not Configured</h2>
         <p className="text-slate-400 text-sm">
-          Set <code className="text-yellow-300">VITE_CLERK_PUBLISHABLE_KEY</code> and{" "}
-          <code className="text-yellow-300">CLERK_SECRET_KEY</code> to enable authentication.
+          Set{" "}
+          <code className="text-yellow-300">VITE_CLERK_PUBLISHABLE_KEY</code>{" "}
+          and <code className="text-yellow-300">CLERK_SECRET_KEY</code> to
+          enable authentication.
         </p>
       </div>
     </div>
@@ -99,10 +124,20 @@ function DevKeysMissing() {
 function DevRoutes() {
   return (
     <Switch>
-      <Route path="/sign-in/*?"><DevSignInPage basePath={basePath} /></Route>
-      <Route path="/sign-up/*?"><DevSignInPage basePath={basePath} /></Route>
-      <Route path="/profile/:username"><ErrorBoundary><PublicProfile /></ErrorBoundary></Route>
-      <Route><DevKeysMissing /></Route>
+      <Route path="/sign-in/*?">
+        <DevSignInPage basePath={basePath} />
+      </Route>
+      <Route path="/sign-up/*?">
+        <DevSignInPage basePath={basePath} />
+      </Route>
+      <Route path="/profile/:username">
+        <ErrorBoundary>
+          <PublicProfile />
+        </ErrorBoundary>
+      </Route>
+      <Route>
+        <DevKeysMissing />
+      </Route>
     </Switch>
   );
 }
@@ -139,7 +174,8 @@ function ClerkUserBridge({ children }: { children: ReactNode }) {
         }
       : null,
     isLoaded,
-    signOut: (opts) => signOut({ redirectUrl: opts?.redirectUrl ?? landingUrl }),
+    signOut: (opts) =>
+      signOut({ redirectUrl: opts?.redirectUrl ?? landingUrl }),
   };
 
   return <AppUserProvider value={value}>{children}</AppUserProvider>;
@@ -162,7 +198,8 @@ function ClerkQueryCacheInvalidator() {
   useEffect(() => {
     return addListener(({ user }: any) => {
       const uid = user?.id ?? null;
-      if (prevIdRef.current !== undefined && prevIdRef.current !== uid) qc.clear();
+      if (prevIdRef.current !== undefined && prevIdRef.current !== uid)
+        qc.clear();
       prevIdRef.current = uid;
     });
   }, [addListener, qc]);
@@ -186,22 +223,39 @@ function ClerkProtect({ children }: { children: ReactNode }) {
 function ClerkRoutes() {
   const HomeRedirect = () => (
     <>
-      <Show when="signed-in"><Redirect to="/dashboard" /></Show>
+      <Show when="signed-in">
+        <Redirect to="/dashboard" />
+      </Show>
       <Show when="signed-out">
         <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] text-white">
           <div className="text-center space-y-8 max-w-2xl px-6">
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(212,175,55,0.4)]">
-              <span className="text-3xl font-black text-[#1a1f35] tracking-tighter">kri8</span>
+              <span className="text-3xl font-black text-[#1a1f35] tracking-tighter">
+                kri8
+              </span>
             </div>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
-              Where raw ideas<br />become reality.
+              Where raw ideas
+              <br />
+              become reality.
             </h1>
             <p className="text-xl text-slate-400">
-              A creative thinker's private workspace. Organize, branch, and evolve your concepts into structured videos.
+              A creative thinker's private workspace. Organize, branch, and
+              evolve your concepts into structured videos.
             </p>
             <div className="flex items-center justify-center gap-4 pt-8">
-              <a href={`${basePath}/sign-in`} className="px-8 py-4 bg-white text-[#1a1f35] rounded-full font-bold text-lg hover:bg-slate-200 transition-colors shadow-lg">Sign In</a>
-              <a href={`${basePath}/sign-up`} className="px-8 py-4 bg-white/10 text-white rounded-full font-bold text-lg hover:bg-white/20 border border-white/20 transition-colors">Create Account</a>
+              <a
+                href={`${basePath}/sign-in`}
+                className="px-8 py-4 bg-white text-[#1a1f35] rounded-full font-bold text-lg hover:bg-slate-200 transition-colors shadow-lg"
+              >
+                Sign In
+              </a>
+              <a
+                href={`${basePath}/sign-up`}
+                className="px-8 py-4 bg-white/10 text-white rounded-full font-bold text-lg hover:bg-white/20 border border-white/20 transition-colors"
+              >
+                Create Account
+              </a>
             </div>
           </div>
         </div>
@@ -215,27 +269,87 @@ function ClerkRoutes() {
       <Route path="/sign-in/*?">
         <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] px-4">
           <div className="z-10 w-full max-w-[440px]">
-            <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/dashboard`} />
+            <SignIn
+              routing="path"
+              path={`${basePath}/sign-in`}
+              signUpUrl={`${basePath}/sign-up`}
+              fallbackRedirectUrl={`${basePath}/dashboard`}
+            />
           </div>
         </div>
       </Route>
       <Route path="/sign-up/*?">
         <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] px-4">
           <div className="z-10 w-full max-w-[440px]">
-            <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} fallbackRedirectUrl={`${basePath}/dashboard`} />
+            <SignUp
+              routing="path"
+              path={`${basePath}/sign-up`}
+              signInUrl={`${basePath}/sign-in`}
+              fallbackRedirectUrl={`${basePath}/dashboard`}
+            />
           </div>
         </div>
       </Route>
 
-      <Route path="/dashboard"><ClerkProtect><ErrorBoundary><Dashboard /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/ideas/:id"><ClerkProtect><ErrorBoundary><IdeaDetail /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/settings"><ClerkProtect><ErrorBoundary><Settings /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/calendar"><ClerkProtect><ErrorBoundary><CalendarPage /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/social"><ClerkProtect><ErrorBoundary><SocialPage /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/messages"><ClerkProtect><ErrorBoundary><MessagesPage /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/trends"><ClerkProtect><ErrorBoundary><TrendsPage /></ErrorBoundary></ClerkProtect></Route>
-      <Route path="/profile/:username"><ErrorBoundary><PublicProfile /></ErrorBoundary></Route>
-      <Route><div className="flex min-h-screen items-center justify-center bg-[#0d1117] text-white">404 - Not Found</div></Route>
+      <Route path="/dashboard">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <Dashboard />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/ideas/:id">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <IdeaDetail />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/settings">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <Settings />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/calendar">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <CalendarPage />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/social">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <SocialPage />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/messages">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <MessagesPage />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/trends">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <TrendsPage />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/profile/:username">
+        <ErrorBoundary>
+          <PublicProfile />
+        </ErrorBoundary>
+      </Route>
+      <Route>
+        <div className="flex min-h-screen items-center justify-center bg-[#0d1117] text-white">
+          404 - Not Found
+        </div>
+      </Route>
     </Switch>
   );
 }
@@ -259,7 +373,8 @@ function ClerkApp() {
     },
     elements: {
       rootBox: "w-full flex justify-center",
-      cardBox: "bg-[#1a1f35] rounded-2xl w-[440px] max-w-full overflow-hidden shadow-2xl border border-white/10",
+      cardBox:
+        "bg-[#1a1f35] rounded-2xl w-[440px] max-w-full overflow-hidden shadow-2xl border border-white/10",
       card: "!shadow-none !border-0 !bg-transparent !rounded-none",
       footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
       headerTitle: "text-white font-bold text-2xl",

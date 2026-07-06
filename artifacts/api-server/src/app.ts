@@ -5,7 +5,6 @@ import { clerkMiddleware } from "@clerk/express";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
-  getClerkProxyHost,
 } from "./middlewares/clerkProxyMiddleware";
 import { globalLimiter, writeLimiter } from "./middlewares/rateLimit";
 import { isDevMode, devAuthMiddleware } from "./middlewares/devAuthMiddleware";
@@ -46,17 +45,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 if (!isDevMode) {
-  app.use((req, res, next) => {
-    const protocol = (req.headers["x-forwarded-proto"] as string) || "https";
-    const host = getClerkProxyHost(req) || "";
-    const proxyUrl = host ? `${protocol}://${host}${CLERK_PROXY_PATH}` : undefined;
-
-    return clerkMiddleware({
+  app.use(
+    clerkMiddleware({
       publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
       secretKey: process.env.CLERK_SECRET_KEY,
-      ...(proxyUrl ? { proxyUrl } : {}),
-    })(req, res, next);
-  });
+    }),
+  );
 } else {
   logger.warn(
     "⚠️  Dev mode: Clerk keys missing — authentication is disabled",
