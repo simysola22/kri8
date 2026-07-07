@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +43,41 @@ export default function CalendarPage() {
     { month: monthStr },
     { query: { queryKey: getGetCalendarIdeasQueryKey({ month: monthStr }) } }
   );
+
+  // ── TEMPORARY DEBUG INSTRUMENTATION ─────────────────────────────────────────
+  useEffect(() => {
+    console.group('[kri8-debug] useGetCalendarIdeas data changed');
+    console.log('typeof ideas         :', typeof ideas);
+    console.log('Array.isArray(ideas) :', Array.isArray(ideas));
+    console.log('raw value            :', ideas);
+    if (ideas && typeof ideas === 'object' && !Array.isArray(ideas)) {
+      console.log('keys (object)        :', Object.keys(ideas as any));
+    }
+    if (typeof ideas === 'string') {
+      console.log('string preview       :', (ideas as unknown as string).slice(0, 300));
+    }
+    console.groupEnd();
+  }, [ideas]);
+
+  useEffect(() => {
+    fetch(`/api/calendar-ideas?month=${monthStr}`, { credentials: 'include' })
+      .then(async (res) => {
+        const contentType = res.headers.get('content-type');
+        const raw = await res.text();
+        let parsed: unknown;
+        try { parsed = JSON.parse(raw); } catch { parsed = raw; }
+        console.group(`[kri8-debug] Direct GET /api/calendar-ideas?month=${monthStr} (raw fetch)`);
+        console.log('status       :', res.status, res.statusText);
+        console.log('content-type :', contentType);
+        console.log('Array.isArray:', Array.isArray(parsed));
+        console.log('typeof body  :', typeof parsed);
+        console.log('body preview :', raw.slice(0, 500));
+        console.log('parsed value :', parsed);
+        console.groupEnd();
+      })
+      .catch((err) => console.error('[kri8-debug] Direct fetch error:', err));
+  }, [monthStr]);
+  // ── END DEBUG ────────────────────────────────────────────────────────────────
 
   const goToPrevMonth = () => {
     if (month === 0) { setYear(y => y - 1); setMonth(11); }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearch } from "wouter";
 import { 
   useListIdeas, 
@@ -41,6 +41,41 @@ export default function Dashboard() {
   const { data: ideas, isLoading } = useListIdeas(listParams, {
     query: { queryKey: getListIdeasQueryKey(listParams) }
   });
+
+  // ── TEMPORARY DEBUG INSTRUMENTATION ─────────────────────────────────────────
+  useEffect(() => {
+    console.group('[kri8-debug] useListIdeas data changed');
+    console.log('typeof ideas         :', typeof ideas);
+    console.log('Array.isArray(ideas) :', Array.isArray(ideas));
+    console.log('raw value            :', ideas);
+    if (ideas && typeof ideas === 'object' && !Array.isArray(ideas)) {
+      console.log('keys (object)        :', Object.keys(ideas as any));
+    }
+    if (typeof ideas === 'string') {
+      console.log('string preview       :', (ideas as string).slice(0, 300));
+    }
+    console.groupEnd();
+  }, [ideas]);
+
+  useEffect(() => {
+    fetch('/api/ideas', { credentials: 'include' })
+      .then(async (res) => {
+        const contentType = res.headers.get('content-type');
+        const raw = await res.text();
+        let parsed: unknown;
+        try { parsed = JSON.parse(raw); } catch { parsed = raw; }
+        console.group('[kri8-debug] Direct GET /api/ideas (raw fetch)');
+        console.log('status       :', res.status, res.statusText);
+        console.log('content-type :', contentType);
+        console.log('Array.isArray:', Array.isArray(parsed));
+        console.log('typeof body  :', typeof parsed);
+        console.log('body preview :', raw.slice(0, 500));
+        console.log('parsed value :', parsed);
+        console.groupEnd();
+      })
+      .catch((err) => console.error('[kri8-debug] Direct fetch error:', err));
+  }, []);
+  // ── END DEBUG ────────────────────────────────────────────────────────────────
 
   const createIdea = useCreateIdea();
 
