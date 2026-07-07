@@ -1,3 +1,4 @@
+import path from "path";
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
@@ -62,5 +63,11 @@ app.use(devAuthMiddleware);
 app.use("/api", globalLimiter);
 app.use("/api", writeLimiter);
 app.use("/api", router);
+
+const clientDist = path.resolve(__dirname, "../../kri8/dist/public");
+app.use(express.static(clientDist));
+app.use((_req, res) => {
+  res.sendFile(path.join(clientDist, "index.html"));
+});
 
 export default app;

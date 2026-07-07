@@ -5,6 +5,6 @@
     "buildCommand": "pnpm install --no-frozen-lockfile && pnpm run build"
   },
   "deploy": {
-    "startCommand": "pnpm --filter @workspace/kri8 serve"
+    "startCommand": "pnpm --filter @workspace/api-server start"
   }
 }
