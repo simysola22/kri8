@@ -1,0 +1,238 @@
+You are acting as a senior full-stack software architect.
+
+Your task is to perform a COMPLETE AUDIT of this repository.
+
+Do NOT modify any code.
+
+Do NOT generate patches.
+
+Do NOT refactor anything.
+
+Only inspect, analyze, and report.
+
+# GOAL
+
+Determine the current health of the project and identify exactly what is working, what is broken, and what is preventing production deployment.
+
+---
+
+## 1. Frontend Audit
+
+Inspect every page and report whether it works correctly.
+
+Include:
+
+* Landing Page
+* Dashboard
+* Ideas
+* Calendar
+* Messages
+* Trends
+* Social
+* Settings
+* Export
+
+For each page report:
+
+* ✅ Working
+* ⚠ Partially Working
+* ❌ Broken
+
+If broken, explain exactly why.
+
+---
+
+## 2. Backend Audit
+
+Inspect every API route.
+
+Report:
+
+* Existing endpoints
+* Missing endpoints
+* Routes that throw errors
+* Routes that return unexpected response shapes
+* Routes returning HTML instead of JSON
+* Authentication requirements
+* Database connectivity
+
+---
+
+## 3. Authentication Audit
+
+Determine:
+
+* Is Clerk working?
+* Is session persistence working?
+* Can users sign in?
+* Can users sign up?
+* Can users sign out?
+* Are protected routes protected?
+* Are public routes public?
+* Is there more than one authentication system?
+
+Report any legacy or duplicate authentication code.
+
+---
+
+## 4. Database Audit
+
+Determine whether:
+
+Ideas persist
+
+Messages persist
+
+Calendar persists
+
+Users persist
+
+Data survives refresh
+
+Data survives logout
+
+Data survives returning days later
+
+List every table currently used.
+
+Identify missing migrations.
+
+---
+
+## 5. Deployment Audit
+
+Inspect deployment configuration.
+
+Report:
+
+* Build command
+* Start command
+* Environment variables
+* Railway compatibility
+* Render compatibility
+* Vercel compatibility
+
+Determine whether the application is currently deployable.
+
+If not, explain the exact blocker.
+
+---
+
+## 6. Runtime Audit
+
+Find:
+
+React runtime errors
+
+TypeScript errors
+
+Unhandled promise rejections
+
+Potential crashes
+
+Every occurrence of:
+
+.map()
+
+.filter()
+
+.reduce()
+
+.flatMap()
+
+.length
+
+that assumes data is an array.
+
+Report every file where this occurs.
+
+---
+
+## 7. Dependency Audit
+
+Report:
+
+Outdated dependencies
+
+Version conflicts
+
+pnpm issues
+
+Workspace issues
+
+Lockfile issues
+
+Package manager inconsistencies
+
+---
+
+## 8. Dead Code Audit
+
+Find:
+
+Unused files
+
+Unused routes
+
+Unused components
+
+Unused providers
+
+Unused authentication logic
+
+Temporary workarounds
+
+Demo mode remnants
+
+Replit-specific hacks
+
+---
+
+## 9. Production Readiness Score
+
+Score each category from 0–10:
+
+Frontend
+
+Backend
+
+Authentication
+
+Database
+
+Deployment
+
+Security
+
+Performance
+
+Code Quality
+
+Overall Production Readiness
+
+---
+
+## OUTPUT FORMAT
+
+Produce ONE report only.
+
+Structure it as:
+
+1. Executive Summary
+2. What's Working
+3. What's Partially Working
+4. What's Broken
+5. Deployment Blockers
+6. Critical Bugs
+7. High Priority Fixes
+8. Medium Priority Fixes
+9. Low Priority Improvements
+10. Recommended Next Steps
+
+Do NOT modify any files.
+
+Do NOT apply fixes.
+
+Do NOT generate code.
+
+Only provide a complete audit report.
