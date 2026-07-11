@@ -12,8 +12,10 @@ import {
   SignUp,
   useClerk,
   useUser,
+  useAuth,
   Show,
 } from "@clerk/react";
+import { setAuthTokenGetter } from "@workspace/api-client-react";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -37,16 +39,19 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
   | string
   | undefined;
-console.log("PUB KEY:", clerkPubKey);
-console.log("ENV:", import.meta.env);
 const IS_DEV_MODE = !clerkPubKey;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const landingUrl = basePath || "/";
 
-const clerkProxyUrl = import.meta.env.PROD
-  ? `${window.location.protocol}//${window.location.host}/api/__clerk`
-  : undefined;
+// Clerk proxy URL — only used when explicitly configured via env var.
+// Set VITE_CLERK_PROXY_URL=https://your-api.onrender.com/api/__clerk in Vercel
+// when your Clerk instance requires proxying (Replit-managed Clerk, or custom
+// domains without a CNAME). Leave unset to have Clerk call its FAPI directly.
+const clerkProxyUrl =
+  import.meta.env.PROD && import.meta.env.VITE_CLERK_PROXY_URL
+    ? (import.meta.env.VITE_CLERK_PROXY_URL as string)
+    : undefined;
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
@@ -187,6 +192,18 @@ function SplashDismisser() {
   useEffect(() => {
     if (isLoaded) dismissSplash();
   }, [isLoaded]);
+  return null;
+}
+
+// Wires Clerk's session JWT into the API client as a Bearer token.
+// Required when the API lives on a different domain (Render) from the
+// frontend (Vercel). No-ops in dev mode where the API is same-origin via proxy.
+function ApiAuthBridge() {
+  const { getToken } = useAuth();
+  useEffect(() => {
+    setAuthTokenGetter(() => getToken());
+    return () => setAuthTokenGetter(null);
+  }, [getToken]);
   return null;
 }
 
@@ -401,6 +418,7 @@ function ClerkApp() {
       <ClerkUserBridge>
         <QueryClientProvider client={queryClient}>
           <SplashDismisser />
+          <ApiAuthBridge />
           <ClerkQueryCacheInvalidator />
           <ClerkRoutes />
           <Toaster />

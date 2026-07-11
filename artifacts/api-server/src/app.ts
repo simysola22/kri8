@@ -1,6 +1,6 @@
 import path from "path";
 import express, { type Express } from "express";
-import cors from "cors";
+import cors, { type CorsOptions } from "cors";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
 import {
@@ -11,6 +11,38 @@ import { globalLimiter, writeLimiter } from "./middlewares/rateLimit";
 import { isDevMode, devAuthMiddleware } from "./middlewares/devAuthMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
+
+/**
+ * Build a CORS origin matcher that allows:
+ *  - localhost on any port (local dev)
+ *  - *.replit.app / *.replit.dev  (Replit preview & deployments)
+ *  - *.vercel.app                  (Vercel preview deployments)
+ *  - Any explicit origins in ALLOWED_ORIGIN env var (comma-separated;
+ *    use this for production custom domains, e.g. https://kri8.com)
+ */
+function buildCorsOrigin(): CorsOptions["origin"] {
+  const defaultPatterns: RegExp[] = [
+    /^https?:\/\/localhost(:\d+)?$/,
+    /^https:\/\/[^.]+\.replit\.app$/,
+    /^https:\/\/[^.]+\.replit\.dev$/,
+    /^https:\/\/[^.]+\.vercel\.app$/,
+  ];
+
+  const explicit: string[] = process.env.ALLOWED_ORIGIN
+    ? process.env.ALLOWED_ORIGIN.split(",")
+        .map((o) => o.trim())
+        .filter(Boolean)
+    : [];
+
+  return (origin, callback) => {
+    // No Origin header = server-to-server, curl, same-origin — always allow
+    if (!origin) return callback(null, true);
+    if (explicit.includes(origin)) return callback(null, true);
+    if (defaultPatterns.some((re) => re.test(origin))) return callback(null, true);
+    logger.warn({ origin }, "CORS: rejected origin");
+    callback(new Error(`CORS: origin "${origin}" is not allowed`));
+  };
+}
 
 const app: Express = express();
 
@@ -41,7 +73,7 @@ app.use(
 // Clerk proxy must be mounted before express.json()
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({ credentials: true, origin: buildCorsOrigin() }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -31,8 +31,10 @@ export default defineConfig({
     allowedHosts: true,
     fs: { strict: true },
     proxy: {
+      // Proxy /api to the local Express server (artifact workflow runs on port 8080).
+      // Vite proxy is dev-only and has no effect on the production build.
       "/api": {
-        target: "http://127.0.0.1:5000",
+        target: "http://127.0.0.1:8080",
         changeOrigin: true,
       },
     },
