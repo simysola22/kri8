@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/kri8 run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
