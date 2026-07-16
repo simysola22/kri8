@@ -5,10 +5,6 @@ version = "1.0.0"
 id = "artifacts/kri8"
 router = "path"
 
-[[integratedSkills]]
-name = "react-vite"
-version = "1.0.0"
-
 [[services]]
 name = "web"
 paths = [ "/" ]
@@ -19,8 +15,8 @@ run = "pnpm --filter @workspace/kri8 run dev"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/kri8", "run", "build" ]
-publicDir = "artifacts/kri8/dist/public"
 serve = "static"
+publicDir = "artifacts/kri8/dist/public"
 
 [[services.production.rewrites]]
 from = "/*"
