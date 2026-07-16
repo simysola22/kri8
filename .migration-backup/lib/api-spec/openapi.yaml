@@ -1,0 +1,943 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.2.0
+  description: kri8 API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: ideas
+    description: Idea management
+  - name: users
+    description: User profile management
+  - name: social
+    description: Social features — friends and messaging
+  - name: trends
+    description: Trend discovery for content creators
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /users/me:
+    get:
+      operationId: getMe
+      tags: [users]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+    patch:
+      operationId: updateMe
+      tags: [users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/search:
+    get:
+      operationId: searchUsers
+      tags: [users]
+      summary: Search users by name or username
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserPublic"
+
+  /ideas:
+    get:
+      operationId: listIdeas
+      tags: [ideas]
+      summary: List all ideas for the current user
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: is_used
+          in: query
+          schema:
+            type: boolean
+        - name: parent_id
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of ideas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Idea"
+    post:
+      operationId: createIdea
+      tags: [ideas]
+      summary: Create a new idea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdeaInput"
+      responses:
+        "201":
+          description: Created idea
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+
+  /ideas/stats:
+    get:
+      operationId: getIdeaStats
+      tags: [ideas]
+      summary: Get idea statistics for dashboard
+      responses:
+        "200":
+          description: Idea statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdeaStats"
+
+  /ideas/recent:
+    get:
+      operationId: getRecentIdeas
+      tags: [ideas]
+      summary: Get recently created ideas
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recent ideas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Idea"
+
+  /ideas/calendar:
+    get:
+      operationId: getCalendarIdeas
+      tags: [ideas]
+      summary: Get ideas for a specific month (calendar view)
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Month in YYYY-MM format"
+      responses:
+        "200":
+          description: Ideas in the month
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Idea"
+
+  /ideas/{id}:
+    get:
+      operationId: getIdea
+      tags: [ideas]
+      summary: Get a single idea with its branches
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Idea detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdeaDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateIdea
+      tags: [ideas]
+      summary: Update an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdeaUpdate"
+      responses:
+        "200":
+          description: Updated idea
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+    delete:
+      operationId: deleteIdea
+      tags: [ideas]
+      summary: Delete an idea and all its branches
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /ideas/{id}/mark-used:
+    post:
+      operationId: markIdeaUsed
+      tags: [ideas]
+      summary: Mark an idea as used
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkUsedInput"
+      responses:
+        "200":
+          description: Updated idea
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+
+  /ideas/{id}/branches:
+    get:
+      operationId: listBranches
+      tags: [ideas]
+      summary: List all branches of an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Idea"
+    post:
+      operationId: createBranch
+      tags: [ideas]
+      summary: Create a branch of an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchInput"
+      responses:
+        "201":
+          description: Created branch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+
+  /profile/{username}:
+    get:
+      operationId: getPublicProfile
+      tags: [users]
+      summary: Get a user's public profile and ideas
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicProfile"
+        "404":
+          description: Not found
+
+  /social/friends:
+    get:
+      operationId: listFriends
+      tags: [social]
+      summary: List accepted friends and pending requests
+      responses:
+        "200":
+          description: Friends and requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendsList"
+
+  /social/friends/{userId}:
+    post:
+      operationId: sendFriendRequest
+      tags: [social]
+      summary: Send a friend request to a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Friend request sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequest"
+        "409":
+          description: Already friends or request exists
+
+  /social/friends/{requestId}/respond:
+    patch:
+      operationId: respondFriendRequest
+      tags: [social]
+      summary: Accept or reject a friend request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FriendRequestResponse"
+      responses:
+        "200":
+          description: Updated friend request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequest"
+
+  /social/messages/{userId}:
+    get:
+      operationId: getMessages
+      tags: [social]
+      summary: Get conversation with a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: before
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [social]
+      summary: Send a message to a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Sent message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  /social/conversations:
+    get:
+      operationId: listConversations
+      tags: [social]
+      summary: List recent conversations
+      responses:
+        "200":
+          description: Conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+
+  /trends/dashboard:
+    get:
+      operationId: getTrendDashboard
+      tags: [trends]
+      summary: Get trending topics, hashtags, and categories
+      responses:
+        "200":
+          description: Trend dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendDashboard"
+
+  /trends/analyze:
+    post:
+      operationId: analyzeIdea
+      tags: [trends]
+      summary: Analyze an idea against current trends
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdeaAnalysisRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdeaAnalysisResult"
+
+  /trends/inspire:
+    post:
+      operationId: inspireIdea
+      tags: [trends]
+      summary: Generate content inspiration for an idea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspirationRequest"
+      responses:
+        "200":
+          description: Inspiration result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InspirationResult"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        clerkUserId:
+          type: string
+        email:
+          type: string
+        name:
+          type: ["string", "null"]
+        username:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        isPublic:
+          type: boolean
+        themePreference:
+          type: string
+        createdAt:
+          type: string
+      required: [id, clerkUserId, email, isPublic, themePreference, createdAt]
+
+    UserPublic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: ["string", "null"]
+        username:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+      required: [id]
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+        avatarUrl:
+          type: string
+        isPublic:
+          type: boolean
+        themePreference:
+          type: string
+
+    Idea:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        insight:
+          type: ["string", "null"]
+        origin:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        videoEditingNotes:
+          type: ["string", "null"]
+        createdDate:
+          type: string
+        usedDate:
+          type: ["string", "null"]
+        customDate:
+          type: ["string", "null"]
+        isUsed:
+          type: boolean
+        parentIdeaId:
+          type: ["integer", "null"]
+        branchCount:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, userId, title, isUsed, branchCount, createdDate, createdAt, updatedAt]
+
+    IdeaDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        insight:
+          type: ["string", "null"]
+        origin:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        videoEditingNotes:
+          type: ["string", "null"]
+        createdDate:
+          type: string
+        usedDate:
+          type: ["string", "null"]
+        customDate:
+          type: ["string", "null"]
+        isUsed:
+          type: boolean
+        parentIdeaId:
+          type: ["integer", "null"]
+        branchCount:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        branches:
+          type: array
+          items:
+            $ref: "#/components/schemas/Idea"
+      required: [id, userId, title, isUsed, branchCount, createdDate, createdAt, updatedAt, branches]
+
+    IdeaInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        insight:
+          type: string
+        origin:
+          type: string
+        notes:
+          type: string
+        videoEditingNotes:
+          type: string
+        customDate:
+          type: string
+      required: [title]
+
+    IdeaUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        insight:
+          type: string
+        origin:
+          type: string
+        notes:
+          type: string
+        videoEditingNotes:
+          type: string
+        customDate:
+          type: string
+        usedDate:
+          type: string
+        isUsed:
+          type: boolean
+        themePreference:
+          type: string
+
+    BranchInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        insight:
+          type: string
+        notes:
+          type: string
+        videoEditingNotes:
+          type: string
+      required: [title]
+
+    MarkUsedInput:
+      type: object
+      properties:
+        usedDate:
+          type: string
+
+    IdeaStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        used:
+          type: integer
+        unused:
+          type: integer
+        withBranches:
+          type: integer
+        totalBranches:
+          type: integer
+        createdThisWeek:
+          type: integer
+        createdThisMonth:
+          type: integer
+      required: [total, used, unused, withBranches, totalBranches, createdThisWeek, createdThisMonth]
+
+    PublicProfile:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserPublic"
+        ideas:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdeaDetail"
+      required: [user, ideas]
+
+    FriendRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        requester:
+          $ref: "#/components/schemas/UserPublic"
+        addressee:
+          $ref: "#/components/schemas/UserPublic"
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+      required: [id, requester, addressee, status, createdAt]
+
+    FriendsList:
+      type: object
+      properties:
+        friends:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserPublic"
+        pendingReceived:
+          type: array
+          items:
+            $ref: "#/components/schemas/FriendRequest"
+        pendingSent:
+          type: array
+          items:
+            $ref: "#/components/schemas/FriendRequest"
+      required: [friends, pendingReceived, pendingSent]
+
+    FriendRequestResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+      required: [status]
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        receiverId:
+          type: integer
+        content:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, senderId, receiverId, content, isRead, createdAt]
+
+    MessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+      required: [content]
+
+    Conversation:
+      type: object
+      properties:
+        partner:
+          $ref: "#/components/schemas/UserPublic"
+        lastMessage:
+          $ref: "#/components/schemas/Message"
+        unreadCount:
+          type: integer
+      required: [partner, unreadCount]
+
+    TrendingTopic:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        growthPercent:
+          type: number
+        volume:
+          type: number
+        platform:
+          type: string
+      required: [id, name, category, growthPercent, volume, platform]
+
+    TrendingHashtag:
+      type: object
+      properties:
+        tag:
+          type: string
+        platform:
+          type: string
+        volume:
+          type: number
+        growthPercent:
+          type: number
+      required: [tag, platform, volume, growthPercent]
+
+    ContentCategory:
+      type: object
+      properties:
+        name:
+          type: string
+        growthPercent:
+          type: number
+        topContent:
+          type: array
+          items:
+            type: string
+      required: [name, growthPercent, topContent]
+
+    TrendDashboard:
+      type: object
+      properties:
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingTopic"
+        hashtags:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingHashtag"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContentCategory"
+        lastUpdated:
+          type: string
+        provider:
+          type: string
+      required: [topics, hashtags, categories, lastUpdated, provider]
+
+    IdeaAnalysisRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        notes:
+          type: string
+      required: [title]
+
+    IdeaAnalysisResult:
+      type: object
+      properties:
+        relevanceScore:
+          type: number
+        relatedTopics:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingTopic"
+        relatedHashtags:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendingHashtag"
+        contentOpportunities:
+          type: array
+          items:
+            type: string
+        suggestedAngles:
+          type: array
+          items:
+            type: string
+      required: [relevanceScore, relatedTopics, relatedHashtags, contentOpportunities, suggestedAngles]
+
+    InspirationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        notes:
+          type: string
+      required: [title]
+
+    InspirationResult:
+      type: object
+      properties:
+        relatedIdeas:
+          type: array
+          items:
+            type: string
+        alternativeHooks:
+          type: array
+          items:
+            type: string
+        titleSuggestions:
+          type: array
+          items:
+            type: string
+        audienceQuestions:
+          type: array
+          items:
+            type: string
+      required: [relatedIdeas, alternativeHooks, titleSuggestions, audienceQuestions]
