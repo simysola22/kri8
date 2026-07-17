@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, usersTable, friendshipsTable, messagesTable } from "@workspace/db";
-import { eq, or, and, lt, gt, desc, sql } from "drizzle-orm";
+import { eq, or, and, lt, gt, desc, sql, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { validateBody } from "../middlewares/validate";
 import { sseLimiter } from "../middlewares/rateLimit";
@@ -53,9 +53,7 @@ router.get("/friends", requireAuth, async (req: any, res): Promise<void> => {
     const usersMap = new Map<number, typeof usersTable.$inferSelect>();
     if (userIds.size > 0) {
       const ids = [...userIds];
-      const users = await db.select().from(usersTable).where(
-        sql`${usersTable.id} = ANY(ARRAY[${sql.join(ids.map(id => sql`${id}`), sql`, `)}])`
-      );
+      const users = await db.select().from(usersTable).where(inArray(usersTable.id, ids));
       for (const u of users) usersMap.set(u.id, u);
     }
     usersMap.set(me.id, me);
@@ -314,9 +312,7 @@ router.get("/conversations", requireAuth, async (req: any, res): Promise<void> =
 
     const partnerIds = rows.map(r => r.partner_id);
     const partnerUsers = partnerIds.length > 0
-      ? await db.select().from(usersTable).where(
-          sql`${usersTable.id} = ANY(ARRAY[${sql.join(partnerIds.map(id => sql`${id}`), sql`, `)}])`
-        )
+      ? await db.select().from(usersTable).where(inArray(usersTable.id, partnerIds))
       : [];
 
     const userMap = new Map(partnerUsers.map(u => [u.id, u]));
