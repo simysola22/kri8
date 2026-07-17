@@ -1,0 +1,225 @@
+You are acting as a Senior React Engineer, Senior TypeScript Engineer, and Senior Full-Stack SaaS Architect.
+
+The recent UI redesign introduced regressions.
+
+The interface looks correct.
+
+The functionality is no longer working.
+
+DO NOT redesign anything.
+
+DO NOT change the UI.
+
+DO NOT modify styling.
+
+DO NOT move components.
+
+DO NOT touch themes.
+
+DO NOT improve UX.
+
+Your ONLY objective is to restore the original functionality while preserving the current UI exactly as it is.
+
+══════════════════════════════
+TASK
+══════════════════════════════
+
+Audit every page.
+
+Verify that every visible UI component is still connected to its original backend implementation.
+
+For every interactive element verify:
+
+UI Component
+
+↓
+
+React State
+
+↓
+
+React Query Hook / Mutation
+
+↓
+
+API Client
+
+↓
+
+Backend Route
+
+↓
+
+Database
+
+Do NOT assume anything.
+
+Actually trace every interaction.
+
+══════════════════════════════
+VERIFY ALL FEATURES
+══════════════════════════════
+
+Dashboard
+
+Capture Idea
+
+Generate AI Ideas
+
+Idea Branching
+
+Idea Editing
+
+Idea Deletion
+
+Calendar
+
+Community
+
+Friend Search
+
+Friend Requests
+
+Messages
+
+Notifications
+
+Trends
+
+Exports
+
+Theme Switching
+
+Profile
+
+Settings
+
+Logout
+
+Quick Actions
+
+Every modal
+
+Every dropdown
+
+Every dialog
+
+══════════════════════════════
+FOR EACH FEATURE
+══════════════════════════════
+
+Verify:
+
+1. Clicking the UI actually fires the intended event.
+
+2. The React handler executes.
+
+3. The correct React Query mutation/query executes.
+
+4. The API client sends the request.
+
+5. The backend receives it.
+
+6. The database updates correctly.
+
+7. The UI refreshes.
+
+If any step is broken:
+
+Reconnect it.
+
+Reuse the ORIGINAL implementation.
+
+Do NOT create duplicate API logic.
+
+Do NOT create duplicate mutations.
+
+Do NOT rewrite working backend code.
+
+Do NOT replace working routes.
+
+══════════════════════════════
+IMPORTANT
+══════════════════════════════
+
+The backend already worked before the redesign.
+
+Assume the backend is correct unless proven otherwise.
+
+If functionality broke, it is most likely because:
+
+• components were replaced
+
+• hooks became disconnected
+
+• mutations are no longer called
+
+• event handlers were removed
+
+• props are no longer passed correctly
+
+• state became disconnected
+
+Reconnect existing functionality.
+
+Do NOT invent new implementations.
+
+══════════════════════════════
+PLATFORM REQUIREMENTS
+══════════════════════════════
+
+Do not introduce:
+
+Replit-only logic
+
+Replit APIs
+
+temporary hacks
+
+mock implementations
+
+demo mode
+
+The application must continue working on:
+
+Vercel
+
+Render
+
+Railway
+
+Local Development
+
+══════════════════════════════
+OUTPUT
+══════════════════════════════
+
+Step 1
+
+List every broken feature.
+
+Step 2
+
+Identify the exact file responsible.
+
+Step 3
+
+Reconnect the feature.
+
+Step 4
+
+Verify the API request succeeds.
+
+Step 5
+
+Verify the backend responds.
+
+Step 6
+
+Verify the database updates.
+
+Step 7
+
+Verify the UI updates correctly.
+
+Do not stop until every feature that worked before the redesign works again while keeping the new UI unchanged.

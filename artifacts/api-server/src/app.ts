@@ -34,8 +34,8 @@ if (process.env.NODE_ENV !== "development") {
 function buildCorsOrigin(): CorsOptions["origin"] {
   const defaultPatterns: RegExp[] = [
     /^https?:\/\/localhost(:\d+)?$/,
-    /^https:\/\/[^.]+\.replit\.app$/,
-    /^https:\/\/[^.]+\.replit\.dev$/,
+    /^https:\/\/.+\.replit\.app$/,
+    /^https:\/\/.+\.replit\.dev$/,
     /^https:\/\/[^.]+\.vercel\.app$/,
   ];
 

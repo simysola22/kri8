@@ -54,6 +54,7 @@ function UserCard({ user, action }: { user: UserPublic; action?: React.ReactNode
 }
 
 export default function SocialPage() {
+  const [activeTab, setActiveTab] = useState("friends");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [searchTimer, setSearchTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -118,7 +119,7 @@ export default function SocialPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="friends">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-card border border-white/10">
             <TabsTrigger value="friends" className="data-[state=active]:bg-white/10">
               Friends
@@ -155,7 +156,7 @@ export default function SocialPage() {
                   <div className="py-12 text-center space-y-3">
                     <UserCircle className="h-12 w-12 text-muted-foreground mx-auto opacity-40" />
                     <p className="text-muted-foreground">No friends yet. Go discover some creators!</p>
-                    <Button variant="outline" className="border-white/20" onClick={() => {}}>
+                    <Button variant="outline" className="border-white/20" onClick={() => setActiveTab("discover")}>
                       <Search className="h-4 w-4 mr-2" />
                       Find Creators
                     </Button>
