@@ -34,6 +34,7 @@ import MessagesPage from "./pages/messages";
 import TrendsPage from "./pages/trends";
 import ExportsPage from "./pages/exports";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { AuthSignInPage, AuthSignUpPage } from "./pages/auth";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -285,28 +286,10 @@ function ClerkRoutes() {
     <Switch>
       <Route path="/" component={HomeRedirect} />
       <Route path="/sign-in/*?">
-        <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] px-4">
-          <div className="z-10 w-full max-w-[440px]">
-            <SignIn
-              routing="path"
-              path={`${basePath}/sign-in`}
-              signUpUrl={`${basePath}/sign-up`}
-              fallbackRedirectUrl={`${basePath}/dashboard`}
-            />
-          </div>
-        </div>
+        <AuthSignInPage />
       </Route>
       <Route path="/sign-up/*?">
-        <div className="flex min-h-[100dvh] items-center justify-center bg-[#0d1117] px-4">
-          <div className="z-10 w-full max-w-[440px]">
-            <SignUp
-              routing="path"
-              path={`${basePath}/sign-up`}
-              signInUrl={`${basePath}/sign-in`}
-              fallbackRedirectUrl={`${basePath}/dashboard`}
-            />
-          </div>
-        </div>
+        <AuthSignUpPage />
       </Route>
 
       <Route path="/dashboard">

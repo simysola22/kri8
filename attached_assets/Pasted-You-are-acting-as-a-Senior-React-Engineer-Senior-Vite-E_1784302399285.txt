@@ -1,0 +1,282 @@
+You are acting as a Senior React Engineer, Senior Vite Engineer, Senior Clerk Authentication Engineer, and Senior UI/UX Designer.
+
+## PRIMARY OBJECTIVE
+
+The frontend works correctly inside Replit.
+
+However, after deployment to Vercel:
+
+* Landing page works.
+* `/sign-in` returns 404.
+* `/sign-up` returns 404.
+
+This issue does NOT occur in the development environment.
+
+Your FIRST priority is to restore the authentication routes.
+
+Only AFTER they work should you redesign the authentication pages.
+
+---
+
+# PART 1 — FIX AUTHENTICATION ROUTES
+
+Do NOT modify the backend.
+
+Do NOT modify the database.
+
+Do NOT modify Clerk credentials.
+
+Audit ONLY the frontend.
+
+Verify:
+
+* Vite production build
+* Wouter routing
+* React routing
+* Clerk routing
+* Vercel compatibility
+* Route registration
+* SPA rewrites
+
+Verify production contains working routes for:
+
+* `/`
+* `/sign-in`
+* `/sign-up`
+* `/dashboard`
+* `/community`
+* `/calendar`
+* `/messages`
+* `/settings`
+* `/profile`
+
+Verify the flow:
+
+Landing Page
+
+↓
+
+Sign In button
+
+↓
+
+`/sign-in`
+
+↓
+
+Router
+
+↓
+
+`<SignIn />`
+
+Likewise:
+
+Landing Page
+
+↓
+
+Sign Up button
+
+↓
+
+`/sign-up`
+
+↓
+
+Router
+
+↓
+
+`<SignUp />`
+
+Run a production build locally.
+
+Inspect:
+
+* App.tsx
+* main.tsx
+* vite.config.ts
+* package.json
+* vercel.json
+* routing configuration
+
+If rewrites are missing, restore them.
+
+If authentication routes are excluded from the production build, restore them.
+
+Do NOT introduce another authentication system.
+
+Do NOT introduce Demo Mode.
+
+Do NOT modify backend code.
+
+---
+
+# PART 2 — REDESIGN AUTHENTICATION EXPERIENCE
+
+Once `/sign-in` and `/sign-up` work correctly in production:
+
+Redesign both pages.
+
+The current authentication pages are visually weak, difficult to read, and inconsistent with the rest of Kri8.
+
+They should feel like premium SaaS onboarding.
+
+Requirements:
+
+• Beautiful glassmorphism
+• Soft gradients
+• Excellent typography
+• High contrast
+• Readable on every theme
+• Mobile responsive
+• Desktop responsive
+• Modern spacing
+• Elegant animations
+• Smooth transitions
+• Proper loading states
+• Accessible colors
+• Excellent keyboard navigation
+
+The pages should match the Kri8 brand.
+
+Design language:
+
+* Modern AI SaaS
+* Apple-quality polish
+* Linear-inspired layouts
+* Notion simplicity
+* Framer smoothness
+
+The pages should immediately communicate:
+
+"Welcome to the Creator Workspace."
+
+---
+
+# LAYOUT
+
+Split-screen layout.
+
+LEFT SIDE
+
+A beautiful branded hero section containing:
+
+* Kri8 logo
+* "The Creator's Space"
+* Short value proposition
+* Animated background matching the active theme
+* Floating glass cards
+* Subtle motion
+* Feature highlights
+
+RIGHT SIDE
+
+Authentication card.
+
+Large glass card.
+
+Contained Clerk component.
+
+Large headings.
+
+Readable spacing.
+
+Beautiful buttons.
+
+Proper input spacing.
+
+Rounded corners.
+
+Soft shadows.
+
+Micro-interactions.
+
+Hover effects.
+
+Loading animations.
+
+---
+
+# THEMES
+
+The authentication pages must automatically inherit the application's active theme.
+
+Support ONLY these themes:
+
+* Monochrome
+* Cyber
+* Aurora
+* Midnight Minimalist
+* Ocean Deep
+* Nature
+* Sky
+* Crimson
+
+The authentication pages should adapt beautifully to every theme.
+
+No theme should ever make text unreadable.
+
+Maintain excellent accessibility.
+
+---
+
+# CLERK STYLING
+
+Customize Clerk appearance using the official Clerk appearance API.
+
+Do NOT replace Clerk components.
+
+Do NOT recreate authentication manually.
+
+Do NOT build custom auth forms.
+
+Use:
+
+* `<SignIn />`
+* `<SignUp />`
+
+styled using Clerk's supported customization system.
+
+---
+
+# QUALITY CHECK
+
+Before finishing verify:
+
+✓ `/sign-in` works locally.
+
+✓ `/sign-up` works locally.
+
+✓ `/sign-in` works after production build.
+
+✓ `/sign-up` works after production build.
+
+✓ No 404.
+
+✓ Clerk authentication still functions.
+
+✓ Session persistence still functions.
+
+✓ Dashboard redirects still work.
+
+✓ Logout still works.
+
+---
+
+# OUTPUT
+
+Provide:
+
+1. Root cause of the production 404.
+
+2. Files modified.
+
+3. Why it worked in Replit.
+
+4. Why it failed on Vercel.
+
+5. Verification that `/sign-in` and `/sign-up` now work both locally and on Vercel.
+
+6. Confirmation that the redesigned authentication pages preserve full Clerk functionality.
