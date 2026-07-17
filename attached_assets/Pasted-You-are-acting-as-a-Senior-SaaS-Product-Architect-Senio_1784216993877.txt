@@ -1,0 +1,599 @@
+You are acting as a Senior SaaS Product Architect, Senior React Engineer, Senior TypeScript Engineer, UI/UX Designer, and Systems Architect.
+
+You are working on **Kri8 — The Creator's Space**, an AI-powered creator workspace.
+
+The application has recently undergone a major UI redesign.
+
+The direction is correct, but functionality has regressed and the user experience still does not feel like a polished, premium SaaS product.
+
+Your objective is to transform Kri8 into a production-ready application while preserving every existing backend feature.
+
+This is **NOT** a rewrite.
+
+This is a refinement and polish pass.
+
+══════════════════════════════
+PHASE 1 — FUNCTIONALITY AUDIT
+══════════════════════════════
+
+Before changing anything:
+
+Perform a COMPLETE functionality audit.
+
+Do NOT redesign immediately.
+
+Verify that every frontend component is still connected to the backend.
+
+For every:
+
+• Button
+
+• Form
+
+• Modal
+
+• Dialog
+
+• Navigation item
+
+• Dropdown
+
+• Quick Action
+
+Verify the complete chain:
+
+UI
+
+↓
+
+React State
+
+↓
+
+React Query / Hook
+
+↓
+
+API Client
+
+↓
+
+Backend Route
+
+↓
+
+Database
+
+Specifically verify:
+
+• Dashboard
+
+• Capture Idea
+
+• AI Idea Generation
+
+• Calendar
+
+• Community
+
+• Friend Search
+
+• Friend Requests
+
+• Messages
+
+• Trends
+
+• Exports
+
+• Settings
+
+• Profile
+
+• Logout
+
+• Notifications
+
+• Theme Switching
+
+• Quick Actions
+
+For every feature:
+
+1. Verify API requests are fired.
+
+2. Verify backend receives them.
+
+3. Verify database updates correctly.
+
+4. Verify UI refreshes correctly.
+
+If the redesign disconnected any feature:
+
+Reconnect it.
+
+Reuse the original hooks.
+
+Reuse the original API clients.
+
+Reuse the original backend routes.
+
+Do NOT duplicate business logic.
+
+Do NOT rewrite working backend code.
+
+══════════════════════════════
+PHASE 2 — NAVIGATION REDESIGN
+══════════════════════════════
+
+The current direction is correct.
+
+However, improve it significantly.
+
+The navigation should feel similar to:
+
+• Linear
+
+• Vercel
+
+• Notion
+
+• Stripe Dashboard
+
+• GitHub
+
+The navigation must feel elegant.
+
+The application should immediately communicate professionalism.
+
+### Overall Layout
+
+Replace the current layout with a **hybrid premium SaaS layout**.
+
+Use:
+
+────────────────────────
+
+TOP BAR
+
+────────────────────────
+
+A slim floating glass navigation bar.
+
+Contains:
+
+• Kri8 logo
+
+• Global Search
+
+• Notifications
+
+• User Avatar
+
+• Profile Menu
+
+The top bar should remain visible at all times.
+
+It should slightly blur the background.
+
+Use premium Glassmorphism.
+
+────────────────────────
+
+PRIMARY NAVIGATION
+
+────────────────────────
+
+Directly beneath the top bar (or elegantly integrated into it), create a row of premium pill-shaped navigation tabs.
+
+Include:
+
+Dashboard
+
+Ideas
+
+Calendar
+
+Community
+
+Messages
+
+Trends
+
+Exports
+
+Settings
+
+Each tab should:
+
+• have an icon
+
+• highlight when active
+
+• animate smoothly
+
+• glow subtly on hover
+
+• use premium Glassmorphism
+
+Current page should always be obvious.
+
+Profile should ONLY contain:
+
+• My Profile
+
+• Themes
+
+• Sign Out
+
+No other navigation should exist inside Profile.
+
+On mobile:
+
+Collapse navigation into an elegant hamburger menu.
+
+Keep usability excellent.
+
+══════════════════════════════
+PHASE 3 — DASHBOARD EXPERIENCE
+══════════════════════════════
+
+The Dashboard should immediately answer:
+
+"What can I do here?"
+
+Improve:
+
+Hierarchy
+
+Spacing
+
+Typography
+
+Visual balance
+
+Information density
+
+The Dashboard should contain:
+
+Recent Ideas
+
+Idea Statistics
+
+Today's Calendar
+
+Quick Actions
+
+Recent Activity
+
+Community Preview
+
+Recent Messages
+
+Trending Topics Preview
+
+Everything should feel intentional.
+
+No clutter.
+
+══════════════════════════════
+PHASE 4 — COMMUNITY
+══════════════════════════════
+
+Repair Community.
+
+Completely verify:
+
+Friend Search
+
+Friend Requests
+
+Messages
+
+Creator Discovery
+
+User Profiles
+
+Friend Search must support:
+
+username
+
+display name
+
+partial matches
+
+case-insensitive matching
+
+Creator cards should contain:
+
+Avatar
+
+Display Name
+
+Username
+
+Bio
+
+Add Friend
+
+Mutual Friends (future-ready)
+
+Recent Activity (future-ready)
+
+Messages should resemble modern chat applications.
+
+Think:
+
+Slack
+
+Discord
+
+Telegram Desktop
+
+══════════════════════════════
+PHASE 5 — VISUAL DESIGN
+══════════════════════════════
+
+Elevate the visual quality dramatically.
+
+Keep Kri8's premium identity.
+
+Use:
+
+Glassmorphism
+
+Soft blur
+
+Rounded corners
+
+Elegant transparency
+
+Smooth depth
+
+Micro shadows
+
+Soft gradients
+
+Premium spacing
+
+Every interaction should feel expensive.
+
+Avoid visual clutter.
+
+Avoid unnecessary effects.
+
+Animations should be subtle.
+
+══════════════════════════════
+PHASE 6 — THEMES
+══════════════════════════════
+
+Replace the existing theme collection.
+
+Keep ONLY:
+
+✓ Monochrome
+
+✓ Cyber
+
+✓ Aurora
+
+✓ Midnight Minimalist
+
+✓ Ocean Deep
+
+Remove every other theme.
+
+Add ONLY these new themes:
+
+────────────────────────
+
+Nature
+
+────────────────────────
+
+A peaceful premium green environment.
+
+Glassmorphism.
+
+Animated background.
+
+Imagine:
+
+soft sunlight
+
+gentle breeze
+
+one elegant flower
+
+small water droplet
+
+very subtle movement
+
+Everything should move naturally.
+
+Almost unnoticeable.
+
+Very lightweight.
+
+────────────────────────
+
+Sky
+
+────────────────────────
+
+Beautiful blue sky.
+
+Soft clouds.
+
+Slow cloud movement.
+
+Elegant lighting.
+
+Clean gradients.
+
+Professional.
+
+Minimal.
+
+────────────────────────
+
+Crimson
+
+────────────────────────
+
+Luxury red & white.
+
+Premium.
+
+Minimal.
+
+Glossy.
+
+Elegant.
+
+Not aggressive.
+
+Every theme must:
+
+Use Glassmorphism.
+
+Automatically adapt every component.
+
+Maintain perfect accessibility.
+
+No text may disappear.
+
+No buttons may become unreadable.
+
+No conflicting colours.
+
+Every page should remain beautiful regardless of theme.
+
+══════════════════════════════
+PHASE 7 — USER EXPERIENCE
+══════════════════════════════
+
+Improve the overall experience.
+
+Reduce cognitive load.
+
+Improve discoverability.
+
+Improve onboarding.
+
+Improve loading states.
+
+Improve empty states.
+
+Improve transitions.
+
+Improve responsiveness.
+
+Improve visual flow.
+
+The application should require almost no explanation.
+
+A first-time user should immediately understand:
+
+Ideas
+
+Calendar
+
+Community
+
+Messages
+
+AI Generation
+
+Exports
+
+══════════════════════════════
+PHASE 8 — PERFORMANCE
+══════════════════════════════
+
+Animations must remain lightweight.
+
+No unnecessary re-renders.
+
+No heavy JavaScript animations.
+
+Maintain excellent FPS.
+
+Maintain mobile performance.
+
+══════════════════════════════
+PHASE 9 — DEPLOYMENT INDEPENDENCE
+══════════════════════════════
+
+Do NOT introduce:
+
+Replit-only code
+
+Replit-only runtime logic
+
+Environment-specific UI
+
+Temporary workarounds
+
+The application must remain deployable to:
+
+Vercel
+
+Render
+
+Railway
+
+Local Development
+
+Future cloud providers
+
+Preserve complete deployment independence.
+
+══════════════════════════════
+OUTPUT
+══════════════════════════════
+
+STEP 1
+
+Functionality Audit
+
+STEP 2
+
+Broken Features
+
+STEP 3
+
+Root Cause Analysis
+
+STEP 4
+
+Navigation Improvements
+
+STEP 5
+
+UI Improvements
+
+STEP 6
+
+UX Improvements
+
+STEP 7
+
+Files Modified
+
+STEP 8
+
+Verification that every frontend feature is correctly connected to the backend.
+
+STEP 9
+
+Verification that the application remains completely deployment-independent.
+
+Do NOT remove existing functionality.
+
+Do NOT rewrite working backend logic.
+
+Do NOT duplicate business logic.
+
+Preserve the current architecture while transforming Kri8 into a polished, premium SaaS product that feels on par with Linear, Notion, Vercel, and Stripe while remaining intuitive for first-time creators.

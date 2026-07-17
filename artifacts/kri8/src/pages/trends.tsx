@@ -117,7 +117,7 @@ export default function TrendsPage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Trending Topics */}
-                  <Card className="bg-card border-white/10">
+                  <Card className="glass-panel">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-primary" />
@@ -148,7 +148,7 @@ export default function TrendsPage() {
                   </Card>
 
                   {/* Trending Hashtags */}
-                  <Card className="bg-card border-white/10">
+                  <Card className="glass-panel">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Hash className="h-5 w-5 text-blue-400" />
@@ -173,7 +173,7 @@ export default function TrendsPage() {
 
                 {/* Categories */}
                 {d.categories.length > 0 && (
-                  <Card className="bg-card border-white/10">
+                  <Card className="glass-panel">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <BarChart3 className="h-5 w-5 text-primary" />
@@ -207,7 +207,7 @@ export default function TrendsPage() {
           {/* Analyze tab */}
           <TabsContent value="analyze" className="mt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-card border-white/10">
+              <Card className="glass-panel">
                 <CardHeader>
                   <CardTitle>Analyze Your Idea</CardTitle>
                   <CardDescription>See how your idea aligns with current trends.</CardDescription>
@@ -245,7 +245,7 @@ export default function TrendsPage() {
               </Card>
 
               {analyzeResult ? (
-                <Card className="bg-card border-white/10">
+                <Card className="glass-panel">
                   <CardHeader>
                     <CardTitle>Analysis Results</CardTitle>
                   </CardHeader>
@@ -331,7 +331,7 @@ export default function TrendsPage() {
           {/* Inspire tab */}
           <TabsContent value="inspire" className="mt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-card border-white/10">
+              <Card className="glass-panel">
                 <CardHeader>
                   <CardTitle>Creator Inspiration Engine</CardTitle>
                   <CardDescription>Let trends spark new content angles for you.</CardDescription>
@@ -371,7 +371,7 @@ export default function TrendsPage() {
               {inspireResult ? (
                 <div className="space-y-4">
                   {inspireResult.relatedIdeas.length > 0 && (
-                    <Card className="bg-card border-white/10">
+                    <Card className="glass-panel">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base flex items-center gap-2">
                           <Lightbulb className="h-4 w-4 text-primary" />
@@ -398,7 +398,7 @@ export default function TrendsPage() {
                   )}
 
                   {inspireResult.alternativeHooks.length > 0 && (
-                    <Card className="bg-card border-white/10">
+                    <Card className="glass-panel">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base flex items-center gap-2">
                           <Sparkles className="h-4 w-4 text-primary" />
@@ -414,7 +414,7 @@ export default function TrendsPage() {
                   )}
 
                   {inspireResult.titleSuggestions.length > 0 && (
-                    <Card className="bg-card border-white/10">
+                    <Card className="glass-panel">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base flex items-center gap-2">
                           <TrendingUp className="h-4 w-4 text-primary" />
@@ -430,7 +430,7 @@ export default function TrendsPage() {
                   )}
 
                   {inspireResult.audienceQuestions.length > 0 && (
-                    <Card className="bg-card border-white/10">
+                    <Card className="glass-panel">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base flex items-center gap-2">
                           <Search className="h-4 w-4 text-primary" />

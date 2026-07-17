@@ -32,6 +32,7 @@ import CalendarPage from "./pages/calendar";
 import SocialPage from "./pages/social";
 import MessagesPage from "./pages/messages";
 import TrendsPage from "./pages/trends";
+import ExportsPage from "./pages/exports";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -354,6 +355,13 @@ function ClerkRoutes() {
         <ClerkProtect>
           <ErrorBoundary>
             <TrendsPage />
+          </ErrorBoundary>
+        </ClerkProtect>
+      </Route>
+      <Route path="/exports">
+        <ClerkProtect>
+          <ErrorBoundary>
+            <ExportsPage />
           </ErrorBoundary>
         </ClerkProtect>
       </Route>

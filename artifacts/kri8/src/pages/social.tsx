@@ -143,7 +143,7 @@ export default function SocialPage() {
 
           {/* Friends tab */}
           <TabsContent value="friends" className="mt-4">
-            <Card className="bg-card border-white/10">
+            <Card className="glass-panel">
               <CardHeader>
                 <CardTitle>Your Friends</CardTitle>
                 <CardDescription>Creators you're connected with.</CardDescription>
@@ -174,7 +174,7 @@ export default function SocialPage() {
           {/* Requests tab */}
           <TabsContent value="requests" className="mt-4 space-y-4">
             {pendingReceived.length > 0 && (
-              <Card className="bg-card border-white/10">
+              <Card className="glass-panel">
                 <CardHeader>
                   <CardTitle className="text-base">Incoming Requests</CardTitle>
                 </CardHeader>
@@ -211,7 +211,7 @@ export default function SocialPage() {
             )}
 
             {pendingSent.length > 0 && (
-              <Card className="bg-card border-white/10">
+              <Card className="glass-panel">
                 <CardHeader>
                   <CardTitle className="text-base">Sent Requests</CardTitle>
                 </CardHeader>
@@ -243,7 +243,7 @@ export default function SocialPage() {
 
           {/* Discover tab */}
           <TabsContent value="discover" className="mt-4">
-            <Card className="bg-card border-white/10">
+            <Card className="glass-panel">
               <CardHeader>
                 <CardTitle>Find Creators</CardTitle>
                 <CardDescription>Search by name or username.</CardDescription>

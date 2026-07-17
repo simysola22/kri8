@@ -1,0 +1,1 @@
+- [kri8 redesign decisions](kri8-redesign.md) — glassmorphism nav, 8 themes, glass-panel utility; all pages use AppLayout with glass-panel class

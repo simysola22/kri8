@@ -13,174 +13,310 @@
 
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
-  --color-card-border: hsl(var(--card-border));
 
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-popover-border: hsl(var(--popover-border));
 
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-primary-border: var(--primary-border);
 
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-secondary-border: var(--secondary-border);
 
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-muted-border: var(--muted-border);
 
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-accent-border: var(--accent-border);
 
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-destructive-border: var(--destructive-border);
 
   --font-sans: var(--app-font-sans);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
 }
 
+/* ─── Default: Midnight Minimalist ───────────────────────────────────────── */
 :root {
-  /* Default Midnight Minimalist Theme */
-  --background: 228 34% 15%; /* #1a1f35 */
-  --foreground: 0 0% 100%;
-  --card: 228 34% 18%;
-  --card-foreground: 0 0% 100%;
-  --popover: 228 34% 18%;
-  --popover-foreground: 0 0% 100%;
-  --primary: 43 74% 49%; /* #d4af37 gold */
-  --primary-foreground: 228 34% 15%;
-  --secondary: 228 34% 22%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 228 34% 22%;
-  --muted-foreground: 228 20% 70%;
-  --accent: 228 34% 25%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 62.8% 50.6%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 228 34% 25%;
-  --input: 228 34% 22%;
-  --ring: 43 74% 49%;
-  
-  --app-font-sans: 'Inter', sans-serif;
+  --background: 228 34% 11%;
+  --foreground: 0 0% 96%;
+  --card: 228 34% 16%;
+  --card-foreground: 0 0% 96%;
+  --popover: 228 34% 14%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 43 74% 52%;
+  --primary-foreground: 228 34% 11%;
+  --secondary: 228 34% 20%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 228 30% 20%;
+  --muted-foreground: 228 15% 60%;
+  --accent: 228 34% 22%;
+  --accent-foreground: 0 0% 96%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 96%;
+  --border: 228 30% 22%;
+  --input: 228 30% 18%;
+  --ring: 43 74% 52%;
+
+  --app-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --radius: 0.75rem;
+
+  /* Glassmorphism tokens */
+  --glass-bg: rgba(255 255 255 / 0.04);
+  --glass-border: rgba(255 255 255 / 0.08);
+  --glass-hover: rgba(255 255 255 / 0.07);
+  --glass-active: rgba(255 255 255 / 0.10);
+  --glass-blur: 12px;
 }
 
-.dark {
-  --background: 228 34% 15%;
-  --foreground: 0 0% 100%;
-  --card: 228 34% 18%;
-  --card-foreground: 0 0% 100%;
-  --primary: 43 74% 49%;
-  --primary-foreground: 228 34% 15%;
-}
+/* ─── Themes ─────────────────────────────────────────────────────────────── */
 
-/* Theme definitions */
+/* Midnight Minimalist (default) */
 .theme-midnight {
-  --background: 228 34% 15%;
-  --primary: 43 74% 49%;
+  --background: 228 34% 11%;
+  --foreground: 0 0% 96%;
+  --card: 228 34% 16%;
+  --card-foreground: 0 0% 96%;
+  --popover: 228 34% 14%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 43 74% 52%;
+  --primary-foreground: 228 34% 11%;
+  --secondary: 228 34% 20%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 228 30% 20%;
+  --muted-foreground: 228 15% 60%;
+  --accent: 228 34% 22%;
+  --border: 228 30% 22%;
+  --input: 228 30% 18%;
+  --ring: 43 74% 52%;
+  --glass-bg: rgba(255 255 255 / 0.04);
+  --glass-border: rgba(255 255 255 / 0.08);
+  --glass-hover: rgba(255 255 255 / 0.07);
+  --glass-active: rgba(212 175 55 / 0.12);
 }
 
-.theme-sunrise {
-  --background: 33 100% 96%; /* Warm orange tint */
-  --foreground: 220 30% 15%;
-  --card: 0 0% 100%;
-  --card-foreground: 220 30% 15%;
-  --primary: 25 95% 53%; /* Orange */
-  --primary-foreground: 0 0% 100%;
-  --border: 33 40% 85%;
-  --muted: 33 40% 90%;
-  --muted-foreground: 220 20% 40%;
-}
-
-.theme-ocean {
-  --background: 210 100% 12%; /* #001f3f */
-  --foreground: 0 0% 100%;
-  --card: 210 50% 18%;
-  --card-foreground: 0 0% 100%;
-  --primary: 199 89% 48%; /* #38bdf8 */
-  --border: 210 50% 25%;
-  --muted: 210 50% 25%;
-  --muted-foreground: 210 30% 70%;
-}
-
-.theme-forest {
-  --background: 160 70% 14%; /* #0B3D2C */
-  --foreground: 0 0% 100%;
-  --card: 160 50% 18%;
-  --card-foreground: 0 0% 100%;
-  --primary: 142 71% 45%; /* #4ade80 */
-  --border: 160 50% 25%;
-  --muted: 160 50% 25%;
-}
-
-.theme-purple {
-  --background: 278 50% 89%; /* #E6D5F0 */
-  --foreground: 270 40% 15%;
-  --card: 0 0% 100%;
-  --card-foreground: 270 40% 15%;
-  --primary: 271 91% 65%; /* #a855f7 */
-  --border: 278 30% 80%;
-  --muted: 278 30% 80%;
-  --muted-foreground: 270 20% 40%;
-}
-
-.theme-aurora {
-  --background: 222 47% 11%;
-  --foreground: 0 0% 100%;
-  --card: 222 47% 16%;
-  --card-foreground: 0 0% 100%;
-  --primary: 262 80% 50%;
-  --border: 222 47% 25%;
-}
-
-.theme-cyber {
-  --background: 0 0% 10%; /* #1a1a1a */
-  --foreground: 0 0% 100%;
-  --card: 0 0% 15%;
-  --card-foreground: 0 0% 100%;
-  --primary: 111 100% 54%; /* #39FF14 */
-  --primary-foreground: 0 0% 10%;
-  --border: 0 0% 25%;
-}
-
-.theme-sepia {
-  --background: 35 32% 41%; /* #8B6F47 */
-  --foreground: 35 20% 95%;
-  --card: 35 25% 35%;
-  --card-foreground: 35 20% 95%;
-  --primary: 35 90% 80%;
-  --border: 35 25% 45%;
-}
-
+/* Monochrome */
 .theme-monochrome {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-  --card: 0 0% 8%;
-  --card-foreground: 0 0% 100%;
-  --primary: 0 0% 100%;
-  --primary-foreground: 0 0% 0%;
-  --border: 0 0% 20%;
+  --background: 0 0% 4%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 9%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 0 0% 96%;
+  --primary-foreground: 0 0% 4%;
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 55%;
+  --accent: 0 0% 18%;
+  --border: 0 0% 18%;
+  --input: 0 0% 12%;
+  --ring: 0 0% 80%;
+  --glass-bg: rgba(255 255 255 / 0.04);
+  --glass-border: rgba(255 255 255 / 0.10);
+  --glass-hover: rgba(255 255 255 / 0.06);
+  --glass-active: rgba(255 255 255 / 0.12);
 }
 
-.theme-sunset {
-  --background: 16 100% 60%; /* #FF6B35 */
-  --foreground: 0 0% 100%;
-  --card: 16 80% 40%;
-  --card-foreground: 0 0% 100%;
-  --primary: 346 87% 60%; /* pink */
-  --border: 16 80% 50%;
+/* Cyber */
+.theme-cyber {
+  --background: 0 0% 7%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 11%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 9%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 111 100% 53%;
+  --primary-foreground: 0 0% 7%;
+  --secondary: 0 0% 16%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 16%;
+  --muted-foreground: 0 0% 55%;
+  --accent: 0 0% 20%;
+  --border: 0 0% 22%;
+  --input: 0 0% 14%;
+  --ring: 111 100% 53%;
+  --glass-bg: rgba(57 255 20 / 0.04);
+  --glass-border: rgba(57 255 20 / 0.10);
+  --glass-hover: rgba(57 255 20 / 0.06);
+  --glass-active: rgba(57 255 20 / 0.12);
 }
+
+/* Aurora */
+.theme-aurora {
+  --background: 222 47% 9%;
+  --foreground: 0 0% 96%;
+  --card: 222 47% 14%;
+  --card-foreground: 0 0% 96%;
+  --popover: 222 47% 12%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 262 80% 62%;
+  --primary-foreground: 0 0% 96%;
+  --secondary: 222 40% 18%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 222 35% 18%;
+  --muted-foreground: 222 20% 60%;
+  --accent: 222 40% 22%;
+  --border: 222 40% 22%;
+  --input: 222 40% 16%;
+  --ring: 262 80% 62%;
+  --glass-bg: rgba(139 92 246 / 0.06);
+  --glass-border: rgba(139 92 246 / 0.12);
+  --glass-hover: rgba(139 92 246 / 0.08);
+  --glass-active: rgba(139 92 246 / 0.16);
+}
+
+/* Ocean Deep */
+.theme-ocean {
+  --background: 210 100% 9%;
+  --foreground: 0 0% 96%;
+  --card: 210 60% 15%;
+  --card-foreground: 0 0% 96%;
+  --popover: 210 70% 12%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 199 89% 55%;
+  --primary-foreground: 210 100% 9%;
+  --secondary: 210 50% 20%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 210 45% 20%;
+  --muted-foreground: 210 25% 60%;
+  --accent: 210 50% 24%;
+  --border: 210 50% 22%;
+  --input: 210 50% 16%;
+  --ring: 199 89% 55%;
+  --glass-bg: rgba(56 189 248 / 0.05);
+  --glass-border: rgba(56 189 248 / 0.10);
+  --glass-hover: rgba(56 189 248 / 0.07);
+  --glass-active: rgba(56 189 248 / 0.14);
+}
+
+/* Nature */
+.theme-nature {
+  --background: 150 55% 7%;
+  --foreground: 0 0% 95%;
+  --card: 150 45% 12%;
+  --card-foreground: 0 0% 95%;
+  --popover: 150 50% 10%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 142 65% 52%;
+  --primary-foreground: 150 55% 7%;
+  --secondary: 150 38% 17%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 150 35% 17%;
+  --muted-foreground: 150 20% 58%;
+  --accent: 150 38% 21%;
+  --border: 150 35% 20%;
+  --input: 150 38% 14%;
+  --ring: 142 65% 52%;
+  --glass-bg: rgba(74 222 128 / 0.05);
+  --glass-border: rgba(74 222 128 / 0.10);
+  --glass-hover: rgba(74 222 128 / 0.07);
+  --glass-active: rgba(74 222 128 / 0.14);
+}
+
+/* Sky */
+.theme-sky {
+  --background: 213 70% 8%;
+  --foreground: 0 0% 96%;
+  --card: 213 60% 14%;
+  --card-foreground: 0 0% 96%;
+  --popover: 213 65% 11%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 199 89% 58%;
+  --primary-foreground: 213 70% 8%;
+  --secondary: 213 50% 19%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 213 45% 19%;
+  --muted-foreground: 213 25% 60%;
+  --accent: 213 50% 23%;
+  --border: 213 48% 21%;
+  --input: 213 50% 15%;
+  --ring: 199 89% 58%;
+  --glass-bg: rgba(125 211 252 / 0.05);
+  --glass-border: rgba(125 211 252 / 0.10);
+  --glass-hover: rgba(125 211 252 / 0.07);
+  --glass-active: rgba(125 211 252 / 0.14);
+}
+
+/* Crimson */
+.theme-crimson {
+  --background: 0 0% 6%;
+  --foreground: 0 0% 97%;
+  --card: 0 10% 10%;
+  --card-foreground: 0 0% 97%;
+  --popover: 0 8% 8%;
+  --popover-foreground: 0 0% 97%;
+  --primary: 0 72% 51%;
+  --primary-foreground: 0 0% 97%;
+  --secondary: 0 12% 16%;
+  --secondary-foreground: 0 0% 97%;
+  --muted: 0 10% 16%;
+  --muted-foreground: 0 8% 58%;
+  --accent: 0 12% 20%;
+  --border: 0 15% 18%;
+  --input: 0 12% 13%;
+  --ring: 0 72% 51%;
+  --glass-bg: rgba(220 38 38 / 0.06);
+  --glass-border: rgba(220 38 38 / 0.12);
+  --glass-hover: rgba(220 38 38 / 0.08);
+  --glass-active: rgba(220 38 38 / 0.16);
+}
+
+/* ─── Animated background elements ───────────────────────────────────────── */
+
+@keyframes nature-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.18; }
+  50% { transform: translateY(-12px) scale(1.03); opacity: 0.24; }
+}
+@keyframes nature-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes sky-drift {
+  0% { transform: translateX(-8%); }
+  100% { transform: translateX(8%); }
+}
+@keyframes aurora-wave {
+  0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.3; }
+  50% { transform: translateY(-16px) scaleX(1.05); opacity: 0.5; }
+}
+
+/* ─── Glassmorphism utility classes ──────────────────────────────────────── */
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.glass-hover:hover {
+  background: var(--glass-hover);
+}
+
+/* ─── Animated background visibility gates ───────────────────────────────── */
+/* These divs are opacity-0 by default; the correct theme class makes them visible */
+:root.theme-nature .theme-nature-show { opacity: 1 !important; }
+:root.theme-sky    .theme-sky-show    { opacity: 1 !important; }
+:root.theme-aurora .theme-aurora-show { opacity: 1 !important; }
+
+/* All animated backgrounds fade in smoothly */
+.theme-nature-show,
+.theme-sky-show,
+.theme-aurora-show {
+  transition: opacity 0.6s ease;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
 
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground transition-colors duration-500;
+    @apply font-sans antialiased bg-background text-foreground;
+    transition: background-color 0.4s ease, color 0.3s ease;
   }
 }

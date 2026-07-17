@@ -197,7 +197,7 @@ export default function IdeaDetail() {
         </div>
 
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-          <DialogContent className="bg-card border-white/10">
+          <DialogContent className="glass-panel">
             <DialogHeader>
               <DialogTitle>Delete this idea?</DialogTitle>
             </DialogHeader>
