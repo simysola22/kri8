@@ -1,0 +1,187 @@
+You are acting as a Senior Full-Stack Engineer and Principal SaaS Architect.
+
+This task is **Commit 1** of a production stabilization series for Kri8.
+
+Your objective is to fix **ONLY Authentication and Production Stability**.
+
+Do NOT touch Community, Messaging, AI, Themes, Dashboard layout, or any unrelated feature.
+
+══════════════════════════════
+OBJECTIVE
+══════════════════════════════
+
+Ensure Kri8 authentication is production-ready on:
+
+• Replit
+• Vercel
+• Render
+• Railway
+• Custom Domain (kri8.space)
+
+Authentication must behave identically everywhere.
+
+══════════════════════════════
+TASKS
+══════════════════════════════
+
+1. Audit Clerk configuration.
+
+Verify:
+
+• ClerkProvider
+• SignIn
+• SignUp
+• Session persistence
+• Protected routes
+• Public routes
+• Redirects
+• Logout
+
+2. Verify routing.
+
+Ensure:
+
+/sign-in
+
+/sign-up
+
+/dashboard
+
+/
+
+work correctly after production build.
+
+No 404s.
+
+3. Verify Vite production build.
+
+Verify:
+
+vite.config.ts
+
+vercel.json
+
+package.json
+
+Build output
+
+Ensure production build matches deployment configuration.
+
+Do NOT make unnecessary changes.
+
+Only fix genuine issues.
+
+4. Verify Vercel SPA routing.
+
+Ensure all client-side routes resolve correctly after refresh.
+
+5. Verify authentication redirects.
+
+Unauthenticated user
+
+↓
+
+Landing Page
+
+↓
+
+Sign In
+
+↓
+
+Dashboard
+
+Authenticated user opening "/"
+
+↓
+
+Dashboard
+
+Logout
+
+↓
+
+Landing Page
+
+6. Verify session persistence.
+
+Refresh browser.
+
+Close browser.
+
+Re-open browser.
+
+User should remain authenticated until Clerk session expires.
+
+7. Verify production deployment.
+
+Run a production build.
+
+Verify the application behaves identically to development.
+
+══════════════════════════════
+STRICT RULES
+══════════════════════════════
+
+DO NOT:
+
+• Modify Community
+• Modify Messaging
+• Modify AI
+• Modify Trends
+• Modify Themes
+• Modify Dashboard UI
+• Modify Database schema
+• Modify Backend APIs unless required for authentication
+
+Only authentication-related fixes are allowed.
+
+══════════════════════════════
+TESTING
+══════════════════════════════
+
+Verify all of the following:
+
+✓ Landing page loads.
+
+✓ Sign Up works.
+
+✓ Sign In works.
+
+✓ Clerk pages are readable.
+
+✓ Clerk pages inherit Kri8 branding.
+
+✓ Protected routes redirect correctly.
+
+✓ Logout works.
+
+✓ Session persists.
+
+✓ No 404 routes.
+
+✓ Production build succeeds.
+
+✓ Vercel deployment succeeds.
+
+══════════════════════════════
+OUTPUT
+══════════════════════════════
+
+Return:
+
+1. Root cause(s)
+
+2. Files modified
+
+3. Why the issue occurred
+
+4. Verification checklist
+
+5. Git commit message
+
+Do NOT make unrelated improvements.
+
+This commit is exclusively for Authentication & Production Stability.
+
+The application should be safer, more reliable, and production-ready after this commit without changing any other subsystem.

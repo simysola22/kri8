@@ -8,8 +8,6 @@ import {
 } from "wouter";
 import {
   ClerkProvider,
-  SignIn,
-  SignUp,
   useClerk,
   useUser,
   useAuth,
