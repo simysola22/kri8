@@ -1,0 +1,211 @@
+Before making ANY further changes, perform a complete end-to-end production verification.
+
+Do NOT redesign anything.
+
+Do NOT refactor anything.
+
+Do NOT add new features.
+
+Your only task is to verify that the application behaves correctly in production.
+
+Test every critical user flow.
+
+══════════════════════════════
+
+AUTHENTICATION
+
+✔ Landing Page loads.
+
+✔ Sign Up works.
+
+✔ Sign In works.
+
+✔ Session persists after refresh.
+
+✔ Logout works.
+
+✔ Protected routes redirect correctly.
+
+✔ Public routes work correctly.
+
+✔ Dashboard loads after authentication.
+
+══════════════════════════════
+
+IDEAS
+
+✔ Capture Idea saves successfully.
+
+✔ Idea appears immediately.
+
+✔ Idea persists after refresh.
+
+✔ Branch creation works.
+
+✔ Edit works.
+
+✔ Delete works.
+
+✔ Search works.
+
+✔ Filters work.
+
+✔ AI Idea Generation returns responses.
+
+══════════════════════════════
+
+CALENDAR
+
+✔ Event creation.
+
+✔ Event editing.
+
+✔ Event deletion.
+
+✔ Persistence.
+
+══════════════════════════════
+
+COMMUNITY
+
+✔ Search creators.
+
+✔ Send friend request.
+
+✔ Recipient receives friend request.
+
+✔ Accept request.
+
+✔ Decline request.
+
+✔ Friends list updates.
+
+✔ Direct messaging works after becoming friends.
+
+══════════════════════════════
+
+PROFILE
+
+✔ Username uniqueness.
+
+✔ Profile editing.
+
+✔ Avatar.
+
+✔ Bio.
+
+✔ Theme persistence.
+
+══════════════════════════════
+
+THEMES
+
+Verify all themes:
+
+• Monochrome
+
+• Cyber
+
+• Aurora
+
+• Midnight Minimalist
+
+• Ocean Deep
+
+• Nature
+
+• Sky
+
+• Crimson
+
+Confirm:
+
+✔ No unreadable text.
+
+✔ No broken glassmorphism.
+
+✔ No contrast issues.
+
+✔ Proper animations.
+
+══════════════════════════════
+
+EXPORTS
+
+✔ PPT export.
+
+✔ Export error handling.
+
+══════════════════════════════
+
+API
+
+Verify every frontend action:
+
+UI
+
+↓
+
+React State
+
+↓
+
+Mutation / Query
+
+↓
+
+API Client
+
+↓
+
+Backend
+
+↓
+
+Database
+
+↓
+
+UI Refresh
+
+No action may stop halfway.
+
+══════════════════════════════
+
+PERFORMANCE
+
+Check for:
+
+• Console errors
+
+• React warnings
+
+• Failed network requests
+
+• Unhandled promise rejections
+
+• 404 routes
+
+• 500 responses
+
+• Slow queries
+
+• Duplicate requests
+
+══════════════════════════════
+
+OUTPUT
+
+Return ONLY:
+
+1. Fully Working Features
+
+2. Broken Features
+
+3. Root Cause of each broken feature
+
+4. Files requiring modification
+
+Do NOT modify code automatically.
+
+Wait for approval before making any fixes.
