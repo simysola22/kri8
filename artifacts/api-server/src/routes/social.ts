@@ -203,6 +203,25 @@ router.post("/messages/:userId", requireAuth, validateBody(sendMessageSchema), a
     if (isNaN(receiverId)) { res.status(400).json({ error: "Invalid userId" }); return; }
     const { content } = req.body as { content: string };
 
+    // Only friends may message each other
+    const friendship = await db
+      .select({ id: friendshipsTable.id })
+      .from(friendshipsTable)
+      .where(
+        and(
+          eq(friendshipsTable.status, "accepted"),
+          or(
+            and(eq(friendshipsTable.requesterId, me.id), eq(friendshipsTable.addresseeId, receiverId)),
+            and(eq(friendshipsTable.requesterId, receiverId), eq(friendshipsTable.addresseeId, me.id)),
+          ),
+        ),
+      )
+      .limit(1);
+    if (!friendship[0]) {
+      res.status(403).json({ error: "You can only message friends" });
+      return;
+    }
+
     const [msg] = await db.insert(messagesTable).values({
       senderId: me.id,
       receiverId,
@@ -287,22 +306,24 @@ router.get("/conversations", requireAuth, async (req: any, res): Promise<void> =
     if (!me) { res.status(401).json({ error: "User not found" }); return; }
 
     const rawConvos = await db.execute(sql`
-      SELECT DISTINCT ON (partner_id)
-        partner_id,
-        id, sender_id, receiver_id, content, is_read, created_at,
-        unread_count
-      FROM (
-        SELECT
-          CASE WHEN sender_id = ${me.id} THEN receiver_id ELSE sender_id END AS partner_id,
+      SELECT * FROM (
+        SELECT DISTINCT ON (partner_id)
+          partner_id,
           id, sender_id, receiver_id, content, is_read, created_at,
-          COUNT(*) FILTER (WHERE receiver_id = ${me.id} AND is_read = false)
-            OVER (PARTITION BY CASE WHEN sender_id = ${me.id} THEN receiver_id ELSE sender_id END)
-            AS unread_count
-        FROM messages
-        WHERE sender_id = ${me.id} OR receiver_id = ${me.id}
-        ORDER BY created_at DESC
-      ) sub
-      ORDER BY partner_id, created_at DESC
+          unread_count
+        FROM (
+          SELECT
+            CASE WHEN sender_id = ${me.id} THEN receiver_id ELSE sender_id END AS partner_id,
+            id, sender_id, receiver_id, content, is_read, created_at,
+            COUNT(*) FILTER (WHERE receiver_id = ${me.id} AND is_read = false)
+              OVER (PARTITION BY CASE WHEN sender_id = ${me.id} THEN receiver_id ELSE sender_id END)
+              AS unread_count
+          FROM messages
+          WHERE sender_id = ${me.id} OR receiver_id = ${me.id}
+        ) sub
+        ORDER BY partner_id, created_at DESC
+      ) conversations
+      ORDER BY created_at DESC
     `);
 
     const rows = rawConvos.rows as Array<{

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "@clerk/react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,34 +27,65 @@ function formatTime(iso: string) {
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 /** Open one persistent SSE connection per selected conversation. Appends new
- *  messages to React Query cache instead of re-fetching the whole thread. */
+ *  messages to React Query cache instead of re-fetching the whole thread.
+ *
+ *  Cross-origin production note: EventSource cannot send custom headers, so
+ *  we fetch a short-lived Clerk JWT and pass it as ?token= on the URL.
+ *  The API server promotes that param to an Authorization header before Clerk
+ *  middleware validates it, keeping auth fully standard on the backend. */
 function useMessageSSE(myId: number | undefined, partnerId: number | undefined) {
+  const { getToken } = useAuth();
+
   useEffect(() => {
     if (!myId || !partnerId) return;
 
-    const url = `${BASE_URL}/api/social/messages/${partnerId}/stream`;
-    const es = new EventSource(url, { withCredentials: true });
+    let es: EventSource | null = null;
+    let cancelled = false;
 
-    es.onmessage = (e) => {
-      try {
-        const msg: Message = JSON.parse(e.data);
-        // Append the new message to the thread cache
-        const key = getGetMessagesQueryKey(partnerId, {});
-        queryClient.setQueryData(key, (old: Message[] = []) => {
-          if (old.some((m) => m.id === msg.id)) return old; // deduplicate
-          return [...old, msg];
-        });
-        // Refresh conversations list so unread count stays current
-        queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey() });
-      } catch {}
+    async function connect() {
+      // Get a fresh Clerk JWT so cross-origin SSE connections are authenticated.
+      // Falls back gracefully if token retrieval fails (same-origin cookie auth
+      // will still work in Replit's unified deployment).
+      let token: string | null = null;
+      try { token = await getToken(); } catch { /* ignore */ }
+
+      if (cancelled) return;
+
+      const urlObj = new URL(
+        `${BASE_URL}/api/social/messages/${partnerId}/stream`,
+        window.location.href,
+      );
+      if (token) urlObj.searchParams.set("token", token);
+
+      es = new EventSource(urlObj.toString(), { withCredentials: true });
+
+      es.onmessage = (e) => {
+        try {
+          const msg: Message = JSON.parse(e.data);
+          // Append the new message to the thread cache
+          const key = getGetMessagesQueryKey(partnerId, {});
+          queryClient.setQueryData(key, (old: Message[] = []) => {
+            if (old.some((m) => m.id === msg.id)) return old; // deduplicate
+            return [...old, msg];
+          });
+          // Refresh conversations list so unread count stays current
+          queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey() });
+        } catch { /* ignore malformed events */ }
+      };
+
+      es.onerror = () => {
+        // Browser auto-reconnects; each reconnect will re-enter this effect
+        // with a fresh token when partnerId/myId change.
+      };
+    }
+
+    connect();
+
+    return () => {
+      cancelled = true;
+      es?.close();
     };
-
-    es.onerror = () => {
-      // Browser will auto-reconnect on transient errors; we don't need to do anything
-    };
-
-    return () => es.close();
-  }, [myId, partnerId]);
+  }, [myId, partnerId, getToken]);
 }
 
 export default function MessagesPage() {

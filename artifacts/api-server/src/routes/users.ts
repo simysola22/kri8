@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, usersTable } from "@workspace/db";
-import { eq, or, ilike } from "drizzle-orm";
+import { eq, or, ilike, ne, and } from "drizzle-orm";
 import { isDevMode } from "../middlewares/devAuthMiddleware";
 
 const router = Router();
@@ -137,13 +137,24 @@ router.get("/search", requireAuth, async (req: any, res): Promise<void> => {
       return;
     }
 
+    const clerkUserId: string = req.clerkUserId;
+    const meRows = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.clerkUserId, clerkUserId))
+      .limit(1);
+    const myId = meRows[0]?.id;
+
     const users = await db
       .select()
       .from(usersTable)
       .where(
-        or(
-          ilike(usersTable.name, `%${q}%`),
-          ilike(usersTable.username, `%${q}%`),
+        and(
+          or(
+            ilike(usersTable.name, `%${q}%`),
+            ilike(usersTable.username, `%${q}%`),
+          ),
+          myId !== undefined ? ne(usersTable.id, myId) : undefined,
         ),
       )
       .limit(20);

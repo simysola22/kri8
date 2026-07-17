@@ -85,6 +85,19 @@ app.use(
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
 app.use(cors({ credentials: true, origin: buildCorsOrigin() }));
+
+// EventSource (SSE) cannot send custom headers.  In cross-origin deployments
+// (e.g. Vercel frontend → Render backend) the browser session cookie won't
+// reach the API domain either.  Promote the ?token= query param to an
+// Authorization: Bearer header so Clerk middleware can validate it normally.
+// This runs before clerkMiddleware so the header is present when Clerk parses it.
+app.use("/api/social/messages", (req, _res, next) => {
+  const token = req.query.token as string | undefined;
+  if (token && !req.headers.authorization) {
+    req.headers.authorization = `Bearer ${token}`;
+  }
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

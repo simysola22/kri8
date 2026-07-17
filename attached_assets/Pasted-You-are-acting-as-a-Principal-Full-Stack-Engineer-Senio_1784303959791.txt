@@ -1,0 +1,353 @@
+You are acting as a Principal Full-Stack Engineer, Senior React Engineer, Senior PostgreSQL Engineer, and Senior Systems Architect.
+
+This is **Commit 2** of Kri8's production stabilization.
+
+## OBJECTIVE
+
+Fix **ONLY** the Community and Messaging subsystem.
+
+Do NOT modify:
+
+* Authentication
+* Dashboard
+* AI
+* Trends
+* Themes
+* Calendar
+* Export
+* Landing Page
+* Database schema (unless absolutely required to fix Community)
+
+Preserve the current UI.
+
+Do NOT redesign anything.
+
+══════════════════════════════
+COMMUNITY AUDIT
+══════════════════════════════
+
+Perform a complete end-to-end audit of:
+
+• Friend Search
+
+• Friend Requests
+
+• Accept Request
+
+• Decline Request
+
+• Friends List
+
+• Direct Messages
+
+• Notifications
+
+• React Query invalidation
+
+• Optimistic UI
+
+• Database persistence
+
+• Cross-origin production compatibility
+
+Trace every action through:
+
+UI
+
+↓
+
+React State
+
+↓
+
+Mutation / Query
+
+↓
+
+API Client
+
+↓
+
+Backend Route
+
+↓
+
+Database
+
+↓
+
+UI Refresh
+
+Nothing may stop midway.
+
+══════════════════════════════
+FRIEND SEARCH
+══════════════════════════════
+
+Verify:
+
+✓ Username search
+
+✓ Name search
+
+✓ Partial matching
+
+✓ Case-insensitive search
+
+✓ Newly registered users appear
+
+✓ Search results are consistent after refresh
+
+Do not return duplicate users.
+
+Do not return the current user.
+
+══════════════════════════════
+FRIEND REQUESTS
+══════════════════════════════
+
+Test with TWO real accounts.
+
+Account A
+
+↓
+
+Search Account B
+
+↓
+
+Send Friend Request
+
+↓
+
+Database updates
+
+↓
+
+Account B refreshes
+
+↓
+
+Pending request appears
+
+↓
+
+Accept
+
+↓
+
+Friends list updates on BOTH accounts
+
+↓
+
+Refresh BOTH pages
+
+↓
+
+Friendship still exists
+
+Verify every step.
+
+No simulated testing.
+
+No mocked responses.
+
+Use actual database writes.
+
+══════════════════════════════
+DIRECT MESSAGES
+══════════════════════════════
+
+Only friends should be able to message each other.
+
+Verify:
+
+✓ Conversation creation
+
+✓ Sending message
+
+✓ Receiving message
+
+✓ Refresh persistence
+
+✓ Conversation ordering
+
+✓ Timestamp ordering
+
+✓ Message history
+
+If using SSE:
+
+Verify it works in production.
+
+If EventSource authentication fails in cross-origin deployments:
+
+Implement a production-safe authentication method using official Clerk patterns.
+
+Do NOT introduce insecure authentication.
+
+Do NOT bypass authentication.
+
+══════════════════════════════
+NOTIFICATIONS
+══════════════════════════════
+
+Verify:
+
+Incoming friend requests
+
+Accepted requests
+
+Unread message indicators
+
+Notification clearing
+
+Refresh persistence
+
+══════════════════════════════
+REACT QUERY
+══════════════════════════════
+
+Ensure every mutation invalidates the correct queries.
+
+Examples:
+
+Friend request sent
+
+↓
+
+Pending requests refresh
+
+Accept request
+
+↓
+
+Friends list refresh
+
+↓
+
+Pending requests refresh
+
+Message sent
+
+↓
+
+Conversation refresh
+
+↓
+
+Unread count refresh
+
+No manual refresh should ever be required.
+
+══════════════════════════════
+DATABASE
+══════════════════════════════
+
+Verify:
+
+Friend requests
+
+Friend relationships
+
+Messages
+
+Conversations
+
+are all permanently stored.
+
+After server restart:
+
+Data must remain.
+
+══════════════════════════════
+PRODUCTION
+══════════════════════════════
+
+Verify Community works identically on:
+
+✓ Replit
+
+✓ Vercel
+
+✓ Render / Railway backend
+
+✓ kri8.space
+
+No Replit-only behaviour.
+
+No local-only behaviour.
+
+══════════════════════════════
+STRICT RULES
+══════════════════════════════
+
+Do NOT:
+
+• redesign UI
+
+• change themes
+
+• refactor unrelated code
+
+• rewrite backend unnecessarily
+
+• duplicate API logic
+
+Reuse existing hooks, API clients, and backend routes whenever possible.
+
+══════════════════════════════
+TEST CHECKLIST
+══════════════════════════════
+
+Use TWO real Clerk accounts.
+
+Verify:
+
+✓ Search finds both users.
+
+✓ Friend request sends.
+
+✓ Recipient receives request.
+
+✓ Recipient accepts.
+
+✓ Both users become friends.
+
+✓ Friends survive refresh.
+
+✓ Friends survive logout/login.
+
+✓ Direct messaging works.
+
+✓ Refresh preserves messages.
+
+✓ No console errors.
+
+✓ No failed network requests.
+
+✓ No React warnings.
+
+✓ No duplicate friend requests.
+
+✓ No duplicate conversations.
+
+══════════════════════════════
+OUTPUT
+══════════════════════════════
+
+Return:
+
+1. Working Features
+
+2. Broken Features
+
+3. Root Cause(s)
+
+4. Files Modified
+
+5. Verification performed using TWO real accounts
+
+6. Git Commit Message
+
+Do NOT mark the Community system as complete unless every item in the checklist passes with two real users.
